@@ -124,7 +124,16 @@
                 msg.innerHTML = 'Please enter all fields';
                 setTimeout(() => msg.remove(), 3000);
             } else {
-                localStorage.setItem(nameInput.value, emailInput.value);
+                let myObj = {
+                    name: "",
+                    email: ""
+                };
+                myObj.name = nameInput.value;
+                myObj.email = emailInput.value;
+
+                let myObjSerialized = JSON.stringify(myObj);
+                localStorage.setItem(nameInput.value, myObjSerialized);
+                console.log(localStorage.getItem(nameInput.value));
             }
         }
     </script>
