@@ -145,8 +145,29 @@
 
                 // create list
                 var li = document.createElement("li");
-                li.appendChild(document.createTextNode(emailInput.value + ": " + phoneInput.value));
+                li.appendChild(document.createTextNode(emailInput.value));
+                li.appendChild(document.createTextNode(": "));
+                li.appendChild(document.createTextNode(phoneInput.value));
+                // add a delete button
+                var deleteBtn = document.createElement("button");
+                deleteBtn.className = "delete";
+                // Append text node
+                deleteBtn.appendChild(document.createTextNode("Delete"));
+
+                // add btns to li
+                li.appendChild(deleteBtn);
                 details.appendChild(li);
+            }
+        }
+        details.addEventListener("click", removeItem);
+        // Remove item
+        function removeItem(e) {
+            if (e.target.classList.contains("delete")) {
+                var li = e.target.parentElement;
+                var emailOfDelete = li.firstChild.textContent;
+                console.log(emailOfDelete);
+                details.removeChild(li);
+                localStorage.removeItem(emailOfDelete);
             }
         }
     </script>
