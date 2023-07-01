@@ -127,6 +127,8 @@
     </section>
 
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.4.0/axios.min.js"></script>
+
     <script>
         const myForm = document.querySelector("#my-form");
         const nameInput = document.querySelector('#username');
@@ -136,6 +138,48 @@
         const msg = document.querySelector('.msg');
         // on submit
         myForm.addEventListener('submit', onSubmit);
+        window.addEventListener("load", showItems);
+
+        // fetch and display item
+        function showItems() {
+            let data = [];
+            axios.get('https://crudcrud.com/api/4592717977114f40a8e8848bce6d03b1/appointmentBooking')
+                .then((res) => {
+                    data = res.data;
+                    for (var i = 0; i < data.length; i++) {
+                        // create list
+                        var li = document.createElement("li");
+                        li.appendChild(document.createTextNode(data[i].email));
+                        li.appendChild(document.createTextNode(": "));
+                        li.appendChild(document.createTextNode(data[i].phone));
+                        // hidden key
+                        var keyElem = document.createElement("span");
+                        keyElem.style.display = "none";
+                        keyElem.appendChild(document.createTextNode(data[i]._id));
+                        li.appendChild(keyElem);
+
+                        // add a delete button
+                        var deleteBtn = document.createElement("button");
+                        deleteBtn.className = "btn2 mx-2 delete";
+                        // Append text node
+                        deleteBtn.appendChild(document.createTextNode("Delete"));
+
+                        // add a edit btn
+                        var editBtn = document.createElement("button");
+                        editBtn.className = "btn2 edit";
+                        // Append text node
+                        editBtn.appendChild(document.createTextNode("Edit"));
+
+                        // add btns to li
+                        li.appendChild(deleteBtn);
+                        li.appendChild(editBtn);
+
+                        // append li
+                        details.appendChild(li);
+                    }
+                })
+                .catch((err) => console.log(err))
+        }
         function onSubmit(e) {
             e.preventDefault();
             if (nameInput.value === '' || emailInput.value === '' || phoneInput.value === '') {
@@ -153,7 +197,9 @@
                 myObj.phone = phoneInput.value;
 
                 let myObjSerialized = JSON.stringify(myObj);
-                localStorage.setItem(emailInput.value, myObjSerialized);
+                // localStorage.setItem(emailInput.value, myObjSerialized);
+                // save to server
+                axios.post('https://crudcrud.com/api/4592717977114f40a8e8848bce6d03b1/appointmentBooking', myObj).then(res => { console.log(res) }).catch((err) => console.log(err))
 
                 // create list
                 var li = document.createElement("li");
@@ -170,6 +216,7 @@
                 // add a edit btn
                 var editBtn = document.createElement("button");
                 editBtn.className = "btn2 edit";
+
                 // Append text node
                 editBtn.appendChild(document.createTextNode("Edit"));
 
@@ -186,24 +233,27 @@
         function removeItem(e) {
             if (e.target.classList.contains("delete")) {
                 var li = e.target.parentElement;
-                var emailOfDelete = li.firstChild.textContent;
-                details.removeChild(li);
-                localStorage.removeItem(emailOfDelete);
+                var key = li.childNodes[3].childNodes[0].textContent;
+                var url = "https://crudcrud.com/api/4592717977114f40a8e8848bce6d03b1/appointmentBooking/" + key;
+
+                axios.delete(url).then(details.removeChild(li)).catch((err) => console.log(err))
             } else if (e.target.classList.contains("edit")) {
                 var li = e.target.parentElement;
-                var emailOfEdit = li.firstChild.textContent;
+                var key = li.childNodes[3].childNodes[0].textContent;
+                var url = "https://crudcrud.com/api/4592717977114f40a8e8848bce6d03b1/appointmentBooking/" + key;
                 // get item from localstorage
-                var localItem = JSON.parse(localStorage.getItem(emailOfEdit))
-                // copy to form
-                var name = localItem.name;
-                var email = localItem.email;
-                var phone = localItem.phone;
-                nameInput.value = name;
-                emailInput.value = email;
-                phoneInput.value = phone;
+                axios.get(url).then((res) => {
+                    // copy to form
+                    var name = res.data.name;
+                    var email = res.data.email;
+                    var phone = res.data.phone;
+                    nameInput.value = name;
+                    emailInput.value = email;
+                    phoneInput.value = phone;
+                }).catch((err) => console.log(err))
+
                 // delete
-                details.removeChild(li);
-                localStorage.removeItem(emailOfEdit);
+                axios.delete(url).then(details.removeChild(li)).catch((err) => console.log(err))
             }
         }
     </script>
