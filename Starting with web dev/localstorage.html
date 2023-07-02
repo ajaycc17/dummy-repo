@@ -139,6 +139,8 @@
         // on submit
         myForm.addEventListener('submit', onSubmit);
         window.addEventListener("load", showItems);
+        // to decide put or post
+        var userId = '';
 
         // fetch and display item
         function showItems() {
@@ -199,7 +201,14 @@
                 let myObjSerialized = JSON.stringify(myObj);
                 // localStorage.setItem(emailInput.value, myObjSerialized);
                 // save to server
-                axios.post('https://crudcrud.com/api/4592717977114f40a8e8848bce6d03b1/appointmentBooking', myObj).then(res => { console.log(res) }).catch((err) => console.log(err))
+                if (userId === '') {
+
+                    axios.post('https://crudcrud.com/api/4592717977114f40a8e8848bce6d03b1/appointmentBooking', myObj).then(res => { console.log(res) }).catch((err) => console.log(err))
+                } else {
+                    let url1 = 'https://crudcrud.com/api/4592717977114f40a8e8848bce6d03b1/appointmentBooking/' + userId;
+                    axios.put(url1, myObj).then(res => { console.log(res) }).catch((err) => console.log(err))
+                    userId = '';
+                }
 
                 // create list
                 var li = document.createElement("li");
@@ -240,6 +249,7 @@
             } else if (e.target.classList.contains("edit")) {
                 var li = e.target.parentElement;
                 var key = li.childNodes[3].childNodes[0].textContent;
+                userId = key;
                 var url = "https://crudcrud.com/api/4592717977114f40a8e8848bce6d03b1/appointmentBooking/" + key;
                 // get item from localstorage
                 axios.get(url).then((res) => {
@@ -253,7 +263,7 @@
                 }).catch((err) => console.log(err))
 
                 // delete
-                axios.delete(url).then(details.removeChild(li)).catch((err) => console.log(err))
+                details.removeChild(li);
             }
         }
     </script>
