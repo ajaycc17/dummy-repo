@@ -22,7 +22,7 @@ const reqHandler = (req, res) => {
         });
         return req.on("end", () => {
             const parsedBody = Buffer.concat(body).toString();
-            const message = parsedBody.split("=")[1];
+            const message = parsedBody.split("=")[0];
             // fs.writeFileSync("message.txt", message);
             fs.writeFile("message.txt", message, (err) => {
                 res.statusCode = 302;
@@ -50,4 +50,4 @@ const reqHandler = (req, res) => {
 
 // way 4
 exports.handler = reqHandler;
-exports.someText = "Hardcoded text";
+exports.someText = "Some random hardcoded text";
