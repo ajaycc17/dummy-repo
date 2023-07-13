@@ -15,14 +15,14 @@ function createItem(amount, desc, id) {
     let totalPriceNow = Number(totalPrice.innerText) + Number(amount);
     totalPrice.innerText = totalPriceNow;
     // create list
-    var li = document.createElement("li");
+    let li = document.createElement("li");
     li.className = "list-group-item d-flex justify-content-between";
     li.appendChild(document.createTextNode(amount));
     li.appendChild(document.createTextNode(" - "));
     li.appendChild(document.createTextNode(desc));
 
     // add a delete button
-    var deleteBtn = document.createElement("button");
+    let deleteBtn = document.createElement("button");
     deleteBtn.className = "btn btn-sm btn-danger delete me-2";
     deleteBtn.appendChild(document.createTextNode("Delete"));
 
@@ -30,7 +30,7 @@ function createItem(amount, desc, id) {
     li.appendChild(deleteBtn);
 
     // hidden id
-    var idElem = document.createElement("span");
+    let idElem = document.createElement("span");
     idElem.className = "visually-hidden";
     idElem.appendChild(document.createTextNode(id));
 
@@ -43,7 +43,7 @@ function createItem(amount, desc, id) {
 
 // on submit
 myForm.addEventListener("submit", onSubmit);
-function onSubmit(e) {
+async function onSubmit(e) {
     e.preventDefault();
     // validation
     if (expenseInp.value === "" || amountDesc.value === "") {
@@ -61,55 +61,60 @@ function onSubmit(e) {
         };
         myExp.amount = expenseInp.value;
         myExp.desc = amountDesc.value;
-        axios
-            .post(
-                "https://crudcrud.com/api/2fe657d7c1a14433abe6886d2b0645cf/shop",
+        try {
+            const putData = await axios.post(
+                "https://crudcrud.com/api/80e82e5d2ebd4505918fbb2df36a8d69/shop",
                 myExp
-            )
-            .then((res) => {
-                createItem(res.data.amount, res.data.desc, res.data._id);
-            })
-            .catch((err) => console.log(err));
+            );
+
+            createItem(
+                putData.data.amount,
+                putData.data.desc,
+                putData.data._id
+            );
+        } catch (err) {
+            console.log(err);
+        }
     }
 }
 
 // fetch and display item
-function showItems() {
-    axios
-        .get("https://crudcrud.com/api/2fe657d7c1a14433abe6886d2b0645cf/shop")
-        .then((res) => {
-            for (var i = 0; i < res.data.length; i++) {
-                createItem(
-                    res.data[i].amount,
-                    res.data[i].desc,
-                    res.data[i]._id
-                );
-            }
-        });
+async function showItems() {
+    try {
+        const resData = await axios.get(
+            "https://crudcrud.com/api/80e82e5d2ebd4505918fbb2df36a8d69/shop"
+        );
+        for (let i = 0; i < resData.data.length; i++) {
+            createItem(
+                resData.data[i].amount,
+                resData.data[i].desc,
+                resData.data[i]._id
+            );
+        }
+    } catch (err) {
+        console.log(err);
+    }
 }
 
 // Remove and edit item
-function removeItem(e) {
+async function removeItem(e) {
     // for deleting record
     if (e.target.classList.contains("delete")) {
-        var li = e.target.parentElement;
-        var id = li.childNodes[4].childNodes[0].textContent;
-        var price = li.childNodes[0].textContent;
+        let li = e.target.parentElement;
+        let id = li.childNodes[4].childNodes[0].textContent;
+        let price = li.childNodes[0].textContent;
         let url =
-            "https://crudcrud.com/api/2fe657d7c1a14433abe6886d2b0645cf/shop/" +
+            "https://crudcrud.com/api/80e82e5d2ebd4505918fbb2df36a8d69/shop/" +
             id;
         details.removeChild(li);
-        axios
-            .delete(url)
-            .then(() => {
-                console.log(`Deleted a record of ID: ${id}`);
-                // set total price
-                let totalPriceNow =
-                    Number(totalPrice.innerText) - Number(price);
-                totalPrice.innerText = totalPriceNow;
-            })
-            .catch((err) => {
-                console.log(err);
-            });
+        try {
+            await axios.delete(url);
+            console.log(`Deleted a record of ID: ${id}`);
+            // set total price
+            let totalPriceNow = Number(totalPrice.innerText) - Number(price);
+            totalPrice.innerText = totalPriceNow;
+        } catch (err) {
+            console.log(err);
+        }
     }
 }
