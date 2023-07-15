@@ -3,7 +3,7 @@ const fs = require("fs");
 const reqHandler = (req, res) => {
     const url = req.url;
     const method = req.method;
-    if (url === "/") {
+    if (url === "/") {  
         return fs.readFile("message.txt", "utf8", (err, data) => {
             const message = data;
             res.write("<html>");
