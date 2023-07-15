@@ -1,9 +1,9 @@
+const path = require("path");
 const fs = require("fs");
 
 const express = require("express");
+const rootDir = require("../util/path");
 const router = express.Router();
-
-let user = "anonymous";
 
 router.get("/login", (req, res, next) => {
     res.send(
@@ -12,7 +12,6 @@ router.get("/login", (req, res, next) => {
 });
 
 router.post("/add-user", (req, res, next) => {
-    user = req.body.username;
     res.send(
         `<script>window.localStorage.setItem("username", "${req.body.username}");location.replace("/")</script>`
     );
@@ -42,6 +41,13 @@ router.post("/", (req, res, next) => {
             res.redirect("/");
         }
     });
+});
+
+router.get("/contactus", (req, res, next) => {
+    res.sendFile(path.join(rootDir, "views", "contact.html"));
+});
+router.post("/success", (req, res, next) => {
+    res.send("<h1>Form successfuly filled</h1>");
 });
 
 module.exports = router;
