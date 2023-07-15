@@ -1,8 +1,9 @@
-const path = require("path");
+
 const fs = require("fs");
 
 const express = require("express");
-const rootDir = require("../util/path");
+
+const contactController = require("../controllers/contact");
 const router = express.Router();
 
 router.get("/login", (req, res, next) => {
@@ -43,11 +44,7 @@ router.post("/", (req, res, next) => {
     });
 });
 
-router.get("/contactus", (req, res, next) => {
-    res.sendFile(path.join(rootDir, "views", "contact.html"));
-});
-router.post("/success", (req, res, next) => {
-    res.send("<h1>Form successfuly filled</h1>");
-});
+router.get("/contactus", contactController.contact);
+router.post("/success", contactController.success);
 
 module.exports = router;
