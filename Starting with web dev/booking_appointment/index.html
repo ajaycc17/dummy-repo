@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+
+    <title>Appointment Booking App</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+</head>
+
+<body>
+
+    <nav class="navbar navbar-expand-lg bg-body-tertiary">
+        <div class="container-fluid">
+            <a class="navbar-brand mx-auto fw-bold" href="#">Appointment Booking</a>
+        </div>
+    </nav>
+    <main class="container-fluid py-4">
+        <section class="mx-auto w-50 mb-3">
+            <form id="my-form" class="mb-3" method="post">
+                <h4 class="mb-3">Add Appointments</h4>
+                <hr>
+
+                <div class="alert-warning" id="msg" role="alert">
+                </div>
+                <div class="mb-3">
+                    <label for="username" class="form-label">Name</label>
+                    <input type="text" class="form-control" id="username" name='username' placeholder="Your name">
+                </div>
+                <div class="mb-3">
+                    <label for="email" class="form-label">Email</label>
+                    <input type="email" class="form-control" id="email" name="email" placeholder="Your email">
+                </div>
+                <div class="mb-3">
+                    <label for="phone" class="form-label">Phone</label>
+                    <input type="tel" class="form-control" id="phone" name="phone" placeholder="Your phone number">
+                </div>
+                <input class="btn btn-primary" type="submit" value="Submit">
+            </form>
+
+            <h4>Bookings</h4>
+            <ul id="details" class="list-group">
+            </ul>
+        </section>
+
+
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.4.0/axios.min.js"></script>
+        <script src="main.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz"
+            crossorigin="anonymous"></script>
+</body>
+
+</html>
