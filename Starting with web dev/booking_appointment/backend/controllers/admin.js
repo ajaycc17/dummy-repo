@@ -3,7 +3,7 @@ const User = require("../models/user");
 exports.getAllBookings = (req, res, next) => {
     User.findAll()
         .then((user) => {
-            res.send(user);
+            res.json(user);
         })
         .catch((err) => console.log(err));
 };
@@ -12,7 +12,7 @@ exports.getBooking = (req, res, next) => {
     const userId = req.params.bookingId;
     User.findByPk(userId)
         .then((user) => {
-            res.send(user);
+            res.json(user);
         })
         .catch((err) => console.log(err));
 };
@@ -27,7 +27,7 @@ exports.postBooking = (req, res, next) => {
         phone: phone,
     })
         .then((result) => {
-            res.send(result);
+            res.json(result);
         })
         .catch((err) => console.log(err));
 };
@@ -44,7 +44,7 @@ exports.postEditBooking = (req, res, next) => {
             return user.save();
         })
         .then((result) => {
-            res.send(result);
+            res.json(result);
         })
         .catch((err) => console.log(err));
 };

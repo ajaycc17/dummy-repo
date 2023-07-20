@@ -21,7 +21,7 @@ function showItems() {
             for (var i = 0; i < data.length; i++) {
                 // create list
                 var li = document.createElement("li");
-                li.className = "list-group-item";
+                li.className = "list-group-item d-flex justify-content-between";
                 li.appendChild(document.createTextNode(data[i].email));
                 li.appendChild(document.createTextNode(": "));
                 li.appendChild(document.createTextNode(data[i].phone));
@@ -39,13 +39,17 @@ function showItems() {
 
                 // add a edit btn
                 var editBtn = document.createElement("button");
-                editBtn.className = "btn btn-sm btn-warning edit";
+                editBtn.className = "btn btn-sm btn-warning mx-2 edit";
                 // Append text node
                 editBtn.appendChild(document.createTextNode("Edit"));
 
+                // add btnDiv
+                var btnDiv = document.createElement("div");
+
                 // add btns to li
-                li.appendChild(deleteBtn);
-                li.appendChild(editBtn);
+                btnDiv.appendChild(editBtn);
+                btnDiv.appendChild(deleteBtn);
+                li.appendChild(btnDiv);
 
                 // append li
                 details.appendChild(li);
@@ -106,7 +110,7 @@ details.addEventListener("click", removeItem);
 // Remove item
 function removeItem(e) {
     if (e.target.classList.contains("delete")) {
-        var li = e.target.parentElement;
+        var li = e.target.parentElement.parentElement;
         var key = li.childNodes[3].childNodes[0].textContent;
         var url = "http://localhost:3000/delete-appointment/" + key;
 
@@ -115,7 +119,7 @@ function removeItem(e) {
             .then(details.removeChild(li))
             .catch((err) => console.log(err));
     } else if (e.target.classList.contains("edit")) {
-        var li = e.target.parentElement;
+        var li = e.target.parentElement.parentElement;
         var key = li.childNodes[3].childNodes[0].textContent;
         userId = key;
         console.log(key);

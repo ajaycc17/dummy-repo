@@ -8,6 +8,59 @@ const msg = document.querySelector("#msg");
 // add eventListeners
 details.addEventListener("click", removeItem);
 window.addEventListener("load", showItems);
+var itemId = "";
+
+// fetch and display item
+function showItems() {
+    details.innerHTML = "";
+    let data = [];
+    axios
+        .get("http://localhost:3000")
+        .then((res) => {
+            data = res.data;
+            for (var i = 0; i < data.length; i++) {
+                // create list
+                var li = document.createElement("li");
+                li.className = "list-group-item d-flex justify-content-between";
+                li.appendChild(document.createTextNode("$" + data[i].amount));
+                li.appendChild(document.createTextNode(" - "));
+                li.appendChild(document.createTextNode(data[i].description));
+                li.appendChild(document.createTextNode(" - "));
+                li.appendChild(document.createTextNode(data[i].category));
+
+                // create a button div
+                var btnDiv = document.createElement("div");
+
+                // add a edit button
+                var editBtn = document.createElement("button");
+                editBtn.className = "btn btn-sm btn-secondary me-2 edit";
+                editBtn.appendChild(document.createTextNode("Edit"));
+
+                // add a delete button
+                var deleteBtn = document.createElement("button");
+                deleteBtn.className = "btn btn-sm btn-danger delete";
+                deleteBtn.appendChild(document.createTextNode("Delete"));
+
+                // add btns to btnDiv
+                btnDiv.appendChild(editBtn);
+                btnDiv.appendChild(deleteBtn);
+
+                // hidden key
+
+                var keyElem = document.createElement("span");
+                keyElem.className = "visually-hidden";
+                keyElem.appendChild(document.createTextNode(data[i].id));
+                btnDiv.appendChild(keyElem);
+
+                // add btnDiv to li
+                li.appendChild(btnDiv);
+
+                // append li to details
+                details.appendChild(li);
+            }
+        })
+        .catch((err) => console.log(err));
+}
 
 // on submit
 myForm.addEventListener("submit", onSubmit);
@@ -32,104 +85,35 @@ function onSubmit(e) {
         myExp.desc = amountDesc.value;
         myExp.category = categoryInp.value;
 
-        let id = Date.now();
-        let myExpSerialized = JSON.stringify(myExp);
-        localStorage.setItem(id, myExpSerialized);
+        // // for localstorage
+        // let id = Date.now();
+        // let myExpSerialized = JSON.stringify(myExp);
+        // localStorage.setItem(id, myExpSerialized);
 
-        // display
-        // create list
-        var li = document.createElement("li");
-        li.className = "list-group-item d-flex justify-content-between";
-        li.appendChild(document.createTextNode(expenseInp.value));
-        li.appendChild(document.createTextNode(" - "));
-        li.appendChild(document.createTextNode(amountDesc.value));
-        li.appendChild(document.createTextNode(" - "));
-        li.appendChild(document.createTextNode(categoryInp.value));
-        // create a button div
-        var btnDiv = document.createElement("div");
-
-        // add a delete button
-        var deleteBtn = document.createElement("button");
-        deleteBtn.className = "btn btn-sm btn-danger delete me-2";
-        deleteBtn.appendChild(document.createTextNode("Delete"));
-
-        // add a edit button
-        var editBtn = document.createElement("button");
-        editBtn.className = "btn btn-sm btn-secondary edit";
-        editBtn.appendChild(document.createTextNode("Edit"));
-
-        // add btns to btnDiv
-        btnDiv.appendChild(deleteBtn);
-        btnDiv.appendChild(editBtn);
-
-        // hidden key
-
-        var keyElem = document.createElement("span");
-        keyElem.className = "visually-hidden";
-        keyElem.appendChild(document.createTextNode(id));
-        btnDiv.appendChild(keyElem);
-
-        // add btnDiv to li
-        li.appendChild(btnDiv);
-
-        // append li to details
-        details.appendChild(li);
-    }
-}
-
-// fetch and display item
-function showItems() {
-    let keys = Object.keys(localStorage);
-    for (var i = 0; i < keys.length; i++) {
-        // create list
-        var li = document.createElement("li");
-        li.className = "list-group-item d-flex justify-content-between";
-        li.appendChild(
-            document.createTextNode(
-                JSON.parse(localStorage.getItem(keys[i])).amount
-            )
-        );
-        li.appendChild(document.createTextNode(" - "));
-        li.appendChild(
-            document.createTextNode(
-                JSON.parse(localStorage.getItem(keys[i])).desc
-            )
-        );
-        li.appendChild(document.createTextNode(" - "));
-        li.appendChild(
-            document.createTextNode(
-                JSON.parse(localStorage.getItem(keys[i])).category
-            )
-        );
-        // create a button div
-        var btnDiv = document.createElement("div");
-
-        // add a delete button
-        var deleteBtn = document.createElement("button");
-        deleteBtn.className = "btn btn-sm btn-danger delete me-2";
-        deleteBtn.appendChild(document.createTextNode("Delete"));
-
-        // add a edit button
-        var editBtn = document.createElement("button");
-        editBtn.className = "btn btn-sm btn-secondary edit";
-        editBtn.appendChild(document.createTextNode("Edit"));
-
-        // add btns to btnDiv
-        btnDiv.appendChild(deleteBtn);
-        btnDiv.appendChild(editBtn);
-
-        // hidden key
-
-        var keyElem = document.createElement("span");
-        keyElem.className = "visually-hidden";
-        keyElem.appendChild(document.createTextNode(keys[i]));
-        btnDiv.appendChild(keyElem);
-
-        // add btnDiv to li
-        li.appendChild(btnDiv);
-
-        // append li to details
-        details.appendChild(li);
+        // for server
+        if (itemId === "") {
+            axios
+                .post("http://localhost:3000/add-item", myExp)
+                .then((res) => {
+                    expenseInp.value = "";
+                    amountDesc.value = "";
+                    categoryInp.value = "";
+                    showItems();
+                })
+                .catch((err) => console.log(err));
+        } else {
+            let url = "http://localhost:3000/edit-item/" + itemId;
+            axios
+                .post(url, myExp)
+                .then((res) => {
+                    expenseInp.value = "";
+                    amountDesc.value = "";
+                    categoryInp.value = "";
+                    showItems();
+                    itemId = "";
+                })
+                .catch((err) => console.log(err));
+        }
     }
 }
 
@@ -138,26 +122,38 @@ function removeItem(e) {
     // for deleting record
     if (e.target.classList.contains("delete")) {
         var li = e.target.parentElement.parentElement;
-        var key = Number(li.childNodes[5].childNodes[2].textContent);
-        details.removeChild(li);
-        localStorage.removeItem(key);
+        var key = li.childNodes[5].childNodes[2].textContent;
+        let url = "http://localhost:3000/delete-item/" + key;
+        axios
+            .post(url)
+            .then((res) => {
+                details.removeChild(li);
+            })
+            .catch((err) => console.log(err));
     }
     // for editing records
     else if (e.target.classList.contains("edit")) {
         var li = e.target.parentElement.parentElement;
-        var key = Number(li.childNodes[5].childNodes[2].textContent);
-        // get item from localstorage
-        var localItem = JSON.parse(localStorage.getItem(key));
-        console.log(localItem);
-        // copy to form
-        var amount = localItem.amount;
-        var desc = localItem.desc;
-        var category = localItem.category;
-        expenseInp.value = amount;
-        amountDesc.value = desc;
-        categoryInp.value = category;
-        // delete
-        details.removeChild(li);
-        localStorage.removeItem(key);
+        var key = li.childNodes[5].childNodes[2].textContent;
+        itemId = key;
+        console.log(itemId);
+        // // get item from localstorage
+        // var localItem = JSON.parse(localStorage.getItem(key));
+        // console.log(localItem);
+        // get from server
+        let url = "http://localhost:3000/get-item/" + itemId;
+        axios
+            .get(url)
+            .then((res) => {
+                // copy to form
+                expenseInp.value = res.data.amount;
+                amountDesc.value = res.data.description;
+                categoryInp.value = res.data.category;
+
+                // delete from view only
+                details.removeChild(li);
+                // localStorage.removeItem(key);
+            })
+            .catch((err) => console.log(err));
     }
 }
