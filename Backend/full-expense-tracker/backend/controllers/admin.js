@@ -1,4 +1,5 @@
 const User = require("../models/user");
+const bcrypt = require("bcrypt");
 
 exports.signUp = async (req, res, next) => {
     const name = req.body.name;
@@ -7,19 +8,28 @@ exports.signUp = async (req, res, next) => {
     try {
         const user = await User.findOne({ where: { email: email } });
         if (user === null) {
-            const newUser = await User.create({
-                name: name,
-                email: email,
-                password: password,
+            const saltRounds = 10;
+            bcrypt.hash(password, saltRounds, async (err, hash) => {
+                if (err) {
+                    console.log(err);
+                }
+                await User.create({
+                    name: name,
+                    email: email,
+                    password: hash,
+                });
+                res.status(201).json({
+                    success: true,
+                    message: "New user created.",
+                });
             });
-            res.json(newUser);
         } else {
-            res.json({
+            res.status(403).json({
                 message: "User with this email id already exists!",
             });
         }
     } catch (err) {
-        console.log(err);
+        res.status(500).json(err);
     }
 };
 
@@ -31,18 +41,26 @@ exports.logIn = async (req, res, next) => {
             where: { email: email },
         });
         if (user !== null) {
-            if (user.password === password) {
-                res.json({ success: true, message: "Successfully logged in." });
-            } else {
-                res.json({ success: false, message: "Incorrect password." });
-            }
+            bcrypt.compare(password, user.password, (err, result) => {
+                if (result) {
+                    res.status(200).json({
+                        success: true,
+                        message: "Successfully logged in.",
+                    });
+                } else {
+                    return res.status(400).json({
+                        success: false,
+                        message: "Incorrect password.",
+                    });
+                }
+            });
         } else {
-            res.json({
+            return res.status(404).json({
                 success: false,
                 message: "User with this email id does not exist.",
             });
         }
     } catch (err) {
-        console.log(err);
+        res.status(500).json({ message: err, success: false });
     }
 };
