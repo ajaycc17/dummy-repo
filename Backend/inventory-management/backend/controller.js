@@ -3,18 +3,20 @@ const Item = require("./model");
 exports.getInventory = (req, res, next) => {
     Item.findAll()
         .then((item) => {
+            console.log(item);
             res.json(item);
         })
         .catch((err) => console.log(err));
 };
 
-exports.getItem = (req, res, next) => {
+exports.getItem = async (req, res, next) => {
     const itemId = req.params.itemId;
-    Item.findByPk(itemId)
-        .then((item) => {
-            res.json(item);
-        })
-        .catch((err) => console.log(err));
+    try {
+        const item = await Item.findByPk(itemId);
+        res.json(item);
+    } catch {
+        console.log(err);
+    }
 };
 
 exports.addItem = (req, res, next) => {
@@ -31,6 +33,26 @@ exports.addItem = (req, res, next) => {
     })
         .then((item) => {
             res.json(item);
+        })
+        .catch((err) => console.log(err));
+};
+
+exports.editItem = (req, res, next) => {
+    const itemId = req.params.itemId;
+    const title = req.body.title;
+    const desc = req.body.desc;
+    const price = req.body.price;
+    const qty = req.body.qty;
+    Item.findByPk(itemId)
+        .then((item) => {
+            item.title = title;
+            item.description = desc;
+            item.price = price;
+            item.quantity = qty;
+            return item.save();
+        })
+        .then((result) => {
+            res.json(result);
         })
         .catch((err) => console.log(err));
 };

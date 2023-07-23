@@ -4,9 +4,10 @@ const descInp = document.querySelector("#desc");
 const priceInp = document.querySelector("#price");
 const qtyInp = document.querySelector("#qty");
 const itemForm = document.querySelector("#item-form");
+const msg = document.querySelector("#msg");
 
 const baseUrl = "http://localhost:3000";
-var itemid = "";
+var itemId = "";
 
 // add eventListeners
 details.addEventListener("click", changeItem);
@@ -46,30 +47,40 @@ function showItems() {
                 tdQty.appendChild(document.createTextNode(data[i].quantity));
                 tr.appendChild(tdQty);
 
+                // create btnEdit
+                let tdBtnEdit = document.createElement("td");
+                let btnEdit = document.createElement("button");
+                btnEdit.className = "btn btn-sm btn-primary edit";
+                btnEdit.appendChild(document.createTextNode("Edit"));
+                tdBtnEdit.appendChild(btnEdit);
+
                 // create btn 1
                 let tdBtn1 = document.createElement("td");
-                let btn1 = document.createElement("btn");
-                btn1.className = "btn btn-sm btn-success me-2 buy buy1";
+                let btn1 = document.createElement("button");
+                btn1.className = "btn btn-sm btn-success buy buy1";
                 btn1.appendChild(document.createTextNode("Buy 1"));
                 tdBtn1.appendChild(btn1);
 
-                // create btn 2
+                // create btn 3 - custom
                 let tdBtn2 = document.createElement("td");
-                let btn2 = document.createElement("btn");
-                btn2.className = "btn btn-sm btn-success me-2 buy buy2";
-                btn2.appendChild(document.createTextNode("Buy 2"));
-                tdBtn2.appendChild(btn2);
+                tdBtn2.className = "d-flex";
 
-                // create btn 3
-                let tdBtn3 = document.createElement("td");
-                let btn3 = document.createElement("btn");
-                btn3.className = "btn btn-sm btn-success buy buy3";
-                btn3.appendChild(document.createTextNode("Buy 3"));
-                tdBtn3.appendChild(btn3);
+                let customInp = document.createElement("input");
+                customInp.type = "number";
+                customInp.placeholder = "Quantity";
+                customInp.className = "w-50 form-control form-control-sm me-2";
 
+                let btn3 = document.createElement("button");
+                btn3.className = "btn btn-sm btn-danger buy buy2";
+                btn3.appendChild(document.createTextNode("Buy Now"));
+
+                tdBtn2.appendChild(customInp);
+                tdBtn2.appendChild(btn3);
+
+                // put all the button columns
+                tr.appendChild(tdBtnEdit);
                 tr.appendChild(tdBtn1);
                 tr.appendChild(tdBtn2);
-                tr.appendChild(tdBtn3);
 
                 // append id - hidden
                 let id = document.createElement("span");
@@ -98,40 +109,89 @@ function handleSubmit(e) {
     myItem.qty = qtyInp.value;
 
     // add item to database
-    let url = baseUrl + "/add-item";
-    axios
-        .post(url, myItem)
-        .then((res) => {
-            nameInp.value = "";
-            descInp.value = "";
-            priceInp.value = "";
-            qtyInp.value = "";
-            showItems();
-        })
-        .catch((err) => console.log(err));
+    if (itemId === "") {
+        let url = baseUrl + "/add-item";
+        axios
+            .post(url, myItem)
+            .then((res) => {
+                nameInp.value = "";
+                descInp.value = "";
+                priceInp.value = "";
+                qtyInp.value = "";
+                showItems();
+            })
+            .catch((err) => console.log(err));
+    } else {
+        let url = baseUrl + "/edit-item/" + itemId;
+        axios
+            .post(url, myItem)
+            .then((res) => {
+                nameInp.value = "";
+                descInp.value = "";
+                priceInp.value = "";
+                qtyInp.value = "";
+                showItems();
+                itemId = "";
+            })
+            .catch((err) => console.log(err));
+    }
 }
 
 // on change
-function changeItem(e) {
+async function changeItem(e) {
     if (e.target.classList.contains("buy")) {
         let amount;
         const tr = e.target.parentElement.parentElement;
         if (e.target.classList.contains("buy1")) {
             amount = 1;
         } else if (e.target.classList.contains("buy2")) {
-            amount = 2;
-        } else if (e.target.classList.contains("buy3")) {
-            amount = 3;
+            amount = e.target.parentElement.childNodes[0].value;
         }
         const key = tr.childNodes[7].childNodes[0].textContent;
-        console.log(key);
-        // change server data
-        let url = baseUrl + "/buy-item/" + key + "/" + amount;
-        axios
-            .post(url)
-            .then((res) => {
+        let existingQty = Number(tr.childNodes[3].childNodes[0].textContent);
+
+        // validation
+        if (
+            amount > existingQty ||
+            amount === undefined ||
+            amount === "" ||
+            amount < 1
+        ) {
+            msg.classList.add("alert");
+            msg.innerHTML = "Enough stock not available!";
+            setTimeout(() => {
+                msg.innerHTML = "";
+                msg.classList.remove("alert");
+            }, 3000);
+        } else {
+            // change server data
+            let url = baseUrl + "/buy-item/" + key + "/" + amount;
+            try {
+                await axios.post(url);
                 showItems();
-            })
-            .catch((err) => console.log(err));
+            } catch {
+                console.log(err);
+            }
+        }
+    } else if (e.target.classList.contains("edit")) {
+        const tr = e.target.parentElement.parentElement;
+        const key = tr.childNodes[7].childNodes[0].textContent;
+        itemId = key;
+
+        // fetch item details from db
+        let url = baseUrl + "/get-item/" + key;
+        try {
+            const res = await axios.get(url);
+            // copy to form
+            nameInp.value = res.data.title;
+            descInp.value = res.data.description;
+            priceInp.value = res.data.price;
+            qtyInp.value = res.data.quantity;
+
+            // delete from view only
+            details.removeChild(tr);
+        } catch {
+            console.log(err);
+        }
     }
 }

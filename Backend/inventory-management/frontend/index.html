@@ -44,7 +44,18 @@
         </section>
         <section class="w-75 mx-auto">
             <hr>
-            <table class="table table-striped">
+            <div class="alert-danger" id="msg" role="alert">
+            </div>
+            <table class="table table-striped table-bordered">
+                <colgroup>
+                    <col style="width:20%">
+                    <col style="width:20%">
+                    <col style="width:10%">
+                    <col style="width:10%">
+                    <col style="width:10%">
+                    <col style="width:10%">
+                    <col style="width:20%">
+                </colgroup>
                 <thead>
                     <tr id="table-head">
                         <th scope="col-3">Item Name</th>
@@ -53,7 +64,7 @@
                         <th scope="col-1">Quantity</th>
                         <th scope="col-1">Buy 1</th>
                         <th scope="col-1">Buy 2</th>
-                        <th scope="col-1">Buy 3</th>
+                        <th scope="col-1">Buy Multiple</th>
                     </tr>
                 </thead>
                 <tbody id="table-body">
