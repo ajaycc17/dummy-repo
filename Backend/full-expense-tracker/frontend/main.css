@@ -7,6 +7,10 @@ body {
 a {
     text-decoration: none;
 }
-select {
-    /* font-size: 115% !important; */
+
+#details li{
+    padding: 10px 0;
+}
+#details li+li{
+    border-top: 1px solid #e5e7eb;
 }
