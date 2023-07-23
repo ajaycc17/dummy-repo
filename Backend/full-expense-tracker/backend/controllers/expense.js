@@ -1,23 +1,27 @@
 const Expense = require("../models/expense");
 
-exports.getExpenses = (req, res, next) => {
-    Expense.findAll()
+exports.getAllExpenses = (req, res, next) => {
+    req.user
+        .getExpenses() //magic method
+        // Expense.findAll({ where: { userId: req.user.id } })
         .then((expenses) => {
             res.status(200).json(expenses);
         })
         .catch((err) => res.status(500).json({ message: err }));
 };
 
-exports.getExpense = (req, res, next) => {
+exports.getOneExpense = (req, res, next) => {
     const expId = req.params.itemId;
-    Expense.findByPk(expId)
-        .then((expense) => {
+    req.user
+        .getExpenses({ where: { id: expId } })
+        .then((expenses) => {
+            const expense = expenses[0];
             res.status(200).json(expense);
         })
         .catch((err) => res.status(404).json({ message: err }));
 };
 
-exports.addExpense = (req, res, next) => {
+exports.addNewExpense = (req, res, next) => {
     const expense = req.body.amount;
     const desc = req.body.desc;
     const category = req.body.category;
@@ -26,6 +30,7 @@ exports.addExpense = (req, res, next) => {
         expense: expense,
         description: desc,
         category: category,
+        userId: req.user.id,
     })
         .then((expense) => {
             res.status(200).json({
@@ -45,8 +50,10 @@ exports.editExpense = (req, res, next) => {
     const desc = req.body.desc;
     const category = req.body.category;
 
-    Expense.findByPk(expId)
-        .then((item) => {
+    req.user
+        .getExpenses({ where: { id: expId } })
+        .then((items) => {
+            const item = items[0];
             item.expense = expense;
             item.description = desc;
             item.category = category;
@@ -67,8 +74,11 @@ exports.editExpense = (req, res, next) => {
 exports.deleteExpense = (req, res, next) => {
     const expId = req.params.itemId;
 
-    Expense.findByPk(expId)
-        .then((item) => {
+    req.user
+        .getExpenses({ where: { id: expId } })
+        .then((items) => {
+            const item = items[0];
+            console.log(item);
             return item.destroy();
         })
         .then((result) => {
