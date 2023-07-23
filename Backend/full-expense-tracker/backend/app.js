@@ -4,10 +4,12 @@ const bodyParser = require("body-parser");
 
 const Expense = require("./models/expense");
 const User = require("./models/user");
+const Order = require("./models/orders");
 
 const sequelize = require("./utils/database");
 const adminRoutes = require("./routes/admin");
 const expenseRoutes = require("./routes/expense");
+const purchaseRoutes = require("./routes/purchase");
 
 const app = express();
 
@@ -16,11 +18,16 @@ app.use(bodyParser.json({ extended: false }));
 
 app.use("/user", adminRoutes);
 app.use("/expense", expenseRoutes);
+app.use("/purchase", purchaseRoutes);
 
 User.hasMany(Expense);
 Expense.belongsTo(User);
 
+User.hasMany(Order);
+Order.belongsTo(User);
+
 sequelize
+    // .sync({ force: true })
     .sync()
     .then((res) => {
         app.listen(3000);
