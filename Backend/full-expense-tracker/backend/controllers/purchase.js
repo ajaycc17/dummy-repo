@@ -1,6 +1,14 @@
 const Razorpay = require("razorpay");
 const Order = require("../models/orders");
 require("dotenv").config();
+const jwt = require("jsonwebtoken");
+
+function generateAccessToken(id, name, isPremium) {
+    return jwt.sign(
+        { userId: id, name: name, isPremium: isPremium },
+        "secretKey"
+    );
+}
 
 exports.purchasePremium = async (req, res, next) => {
     try {
@@ -38,6 +46,11 @@ exports.updateTransactionStatus = async (req, res, next) => {
         return res.status(202).json({
             success: true,
             message: "Transaction successful",
+            token: generateAccessToken(
+                req.user.id,
+                req.user.name,
+                req.user.isPremiumUser
+            ),
         });
     } catch (err) {
         throw new Error(err);

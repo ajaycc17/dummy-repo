@@ -6,6 +6,10 @@ const categoryInp = document.querySelector("#category");
 const details = document.querySelector("#details");
 const msg = document.querySelector("#msg");
 const msgSuccess = document.querySelector("#msgSuccess");
+const premiumMsg = document.querySelector("#premium-msg");
+const leaderboard = document.querySelector("#leaderboard");
+const leaderboardBtn = document.querySelector("#leaderboard-btn");
+const leaderboardHead = document.querySelector("#leaderboardHead");
 
 const baseUrl = "http://localhost:3000/expense";
 
@@ -19,10 +23,20 @@ function showItems() {
     details.innerHTML = "";
     let data = [];
     const token = localStorage.getItem("token");
+
     axios
         .get(baseUrl, { headers: { Authorization: token } })
         .then((res) => {
-            data = res.data;
+            data = res.data.data;
+            const isPremium = res.data.isPremium;
+            if (isPremium) {
+                premiumMsg.className =
+                    "w-full bg-green-100 px-3 py-1 mb-3 border-2 border-green-200";
+                premiumMsg.innerHTML =
+                    '<i class="bi bi-patch-check-fill mr-2 text-green-600"></i>You are a premium member.';
+                leaderboardBtn.classList.remove("hidden");
+                leaderboardBtn.addEventListener("click", showLeaderboard);
+            }
             for (var i = 0; i < data.length; i++) {
                 // create list
                 var li = document.createElement("li");
@@ -171,6 +185,36 @@ function removeItem(e) {
     }
 }
 
+function showLeaderboard() {
+    leaderboard.innerHTML = "";
+    leaderboardHead.classList.remove("hidden");
+    let data = [];
+    const token = localStorage.getItem("token");
+    let url = "http://localhost:3000" + "/premium/get-leaderboard";
+    axios
+        .get(url, { headers: { Authorization: token } })
+        .then((res) => {
+            data = res.data;
+            for (var i = 0; i < data.length; i++) {
+                // create list
+                var li = document.createElement("li");
+                li.className = "flex items-center justify-between";
+                li.appendChild(document.createTextNode("Name: "));
+                li.appendChild(document.createTextNode(data[i].name));
+                li.appendChild(document.createTextNode(" - "));
+                li.appendChild(
+                    document.createTextNode(
+                        "Total Expense: ₹" + data[i].expense
+                    )
+                );
+
+                // append li to details
+                leaderboard.appendChild(li);
+            }
+        })
+        .catch((err) => console.log(err));
+}
+
 // razorpay
 document.getElementById("rzp-btn").onclick = async function (e) {
     const token = localStorage.getItem("token");
@@ -182,7 +226,7 @@ document.getElementById("rzp-btn").onclick = async function (e) {
         key: response.data.key_id,
         order_id: response.data.order.id,
         handler: async function (response) {
-            await axios.post(
+            const res = await axios.post(
                 "http://localhost:3000/purchase/update-transaction-status",
                 {
                     order_id: options.order_id,
@@ -190,7 +234,11 @@ document.getElementById("rzp-btn").onclick = async function (e) {
                 },
                 { headers: { Authorization: token } }
             );
-            alert("You are a premium user now");
+            localStorage.setItem("token", res.data.token);
+            premiumMsg.className =
+                "bg-green-100 px-3 py-2 mb-3 border-2 border-green-200";
+            premiumMsg.innerHTML =
+                '<i class="bi bi-patch-check-fill mr-2 text-green-600"></i>You are a premium member now.';
         },
     };
     const rzpl = new Razorpay(options);
@@ -206,7 +254,7 @@ document.getElementById("rzp-btn").onclick = async function (e) {
             },
             { headers: { Authorization: token } }
         );
-        console.log(response.error.metadata);
+        // console.log(response.error.metadata);
         alert("Something went wrong");
     });
 };

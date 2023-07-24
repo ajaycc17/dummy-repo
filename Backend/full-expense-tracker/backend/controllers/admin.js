@@ -2,7 +2,7 @@ const User = require("../models/user");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
-function generateAccessToke(id, name) {
+function generateAccessToken(id, name) {
     return jwt.sign({ userId: id, name: name }, "secretKey");
 }
 
@@ -51,7 +51,7 @@ exports.logIn = async (req, res, next) => {
                     res.status(200).json({
                         success: true,
                         message: "Successfully logged in.",
-                        token: generateAccessToke(user.id, user.name),
+                        token: generateAccessToken(user.id, user.name),
                     });
                 } else {
                     return res.status(400).json({

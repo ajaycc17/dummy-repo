@@ -72,12 +72,23 @@
                 </button>
             </form>
         </section>
-        <section class="col-span-7 border-l pl-6">
+        <section id="list-expense" class="col-span-7 border-l pl-6">
+            <!-- premium message -->
+            <div class="flex gap-2 items-center">
+                <div id="premium-msg"></div>
+                <button id="leaderboard-btn"
+                    class="hidden bg-black border-2 border-black px-3 py-1 mb-3 text-white">Leaderboard</button>
+            </div>
             <!-- header -->
-            <h1 class="head-font font-semibold pb-3 text-xl">Add expenses to track</h1>
+            <h1 class="head-font font-semibold pb-3 text-xl">List of existing expenses</h1>
             <hr>
             <!-- expenses -->
-            <ul id="details"></ul>
+            <ul id="details" class="mb-8">
+            </ul>
+
+            <!-- leaderboard -->
+            <h2 id="leaderboardHead" class="hidden head-font font-semibold pb-3 text-xl border-b mb-3">Leaderboard</h2>
+            <ul id="leaderboard"></ul>
         </section>
     </main>
     <footer class="bg-gray-300 py-3 px-2 md:px-4">

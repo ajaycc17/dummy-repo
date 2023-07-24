@@ -5,7 +5,10 @@ exports.getAllExpenses = (req, res, next) => {
         .getExpenses() //magic method
         // Expense.findAll({ where: { userId: req.user.id } })
         .then((expenses) => {
-            res.status(200).json(expenses);
+            res.status(200).json({
+                data: expenses,
+                isPremium: req.user.isPremiumUser,
+            });
         })
         .catch((err) => res.status(500).json({ message: err }));
 };
