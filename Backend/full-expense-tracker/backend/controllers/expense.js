@@ -1,4 +1,5 @@
 const Expense = require("../models/expense");
+const User = require("../models/user");
 
 exports.getAllExpenses = (req, res, next) => {
     req.user
@@ -24,74 +25,77 @@ exports.getOneExpense = (req, res, next) => {
         .catch((err) => res.status(404).json({ message: err }));
 };
 
-exports.addNewExpense = (req, res, next) => {
+exports.addNewExpense = async (req, res, next) => {
     const expense = req.body.amount;
     const desc = req.body.desc;
     const category = req.body.category;
-
-    Expense.create({
-        expense: expense,
-        description: desc,
-        category: category,
-        userId: req.user.id,
-    })
-        .then((expense) => {
-            res.status(200).json({
-                success: true,
-                message: "New expense added successfully.",
-                data: expense,
-            });
-        })
-        .catch((err) => {
-            res.status(500).json({ message: err });
+    try {
+        const newExpense = await Expense.create({
+            expense: expense,
+            description: desc,
+            category: category,
+            userId: req.user.id,
         });
+
+        const user = await User.findOne({ where: { id: req.user.id } });
+        user.totalExpense = user.totalExpense + Number(expense);
+        await user.save();
+
+        res.status(200).json({
+            success: true,
+            message: "New expense added successfully.",
+            data: newExpense,
+        });
+    } catch (err) {
+        res.status(500).json({ message: err });
+    }
 };
 
-exports.editExpense = (req, res, next) => {
+exports.editExpense = async (req, res, next) => {
     const expId = req.params.itemId;
     const expense = req.body.amount;
     const desc = req.body.desc;
     const category = req.body.category;
+    try {
+        const items = await req.user.getExpenses({ where: { id: expId } });
+        const item = items[0];
+        const oldExpense = item.expense;
+        item.expense = expense;
+        item.description = desc;
+        item.category = category;
+        await item.save();
 
-    req.user
-        .getExpenses({ where: { id: expId } })
-        .then((items) => {
-            const item = items[0];
-            item.expense = expense;
-            item.description = desc;
-            item.category = category;
-            return item.save();
-        })
-        .then((item) => {
-            res.status(200).json({
-                success: true,
-                message: "Expense edited successfully.",
-                data: item,
-            });
-        })
-        .catch((err) => {
-            res.status(500).json({ message: err });
+        const user = await User.findOne({ where: { id: req.user.id } });
+        user.totalExpense = user.totalExpense - oldExpense + Number(expense);
+        await user.save();
+
+        res.status(200).json({
+            success: true,
+            message: "Expense edited successfully.",
+            data: item,
         });
+    } catch (err) {
+        res.status(500).json({ message: err });
+    }
 };
 
-exports.deleteExpense = (req, res, next) => {
+exports.deleteExpense = async (req, res, next) => {
     const expId = req.params.itemId;
+    try {
+        const items = await req.user.getExpenses({ where: { id: expId } });
+        const item = items[0];
+        const oldExpense = item.expense;
+        await item.destroy();
 
-    req.user
-        .getExpenses({ where: { id: expId } })
-        .then((items) => {
-            const item = items[0];
-            console.log(item);
-            return item.destroy();
-        })
-        .then((result) => {
-            res.status(200).json({
-                success: true,
-                message: "Expense deleted successfully.",
-                data: result,
-            });
-        })
-        .catch((err) => {
-            res.status(500).json({ message: err });
+        const user = await User.findOne({ where: { id: req.user.id } });
+        user.totalExpense = user.totalExpense - oldExpense;
+        await user.save();
+
+        res.status(200).json({
+            success: true,
+            message: "Expense deleted successfully.",
         });
+    } catch (err) {
+        res.status(500).json({ message: err });
+    }
 };
