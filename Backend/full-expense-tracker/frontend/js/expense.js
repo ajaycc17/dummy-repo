@@ -3,7 +3,7 @@ const myForm = document.querySelector("#my-form");
 const expenseInp = document.querySelector("#amount");
 const amountDesc = document.querySelector("#desc");
 const categoryInp = document.querySelector("#category");
-const details = document.querySelector("#details");
+const details = document.querySelector("#table-body");
 const msg = document.querySelector("#msg");
 const msgSuccess = document.querySelector("#msgSuccess");
 const premiumMsg = document.querySelector("#premium-msg");
@@ -38,44 +38,51 @@ function showItems() {
                 leaderboardBtn.addEventListener("click", showLeaderboard);
             }
             for (var i = 0; i < data.length; i++) {
-                // create list
-                var li = document.createElement("li");
-                li.className = "flex items-center justify-between";
-                li.appendChild(document.createTextNode("₹" + data[i].expense));
-                li.appendChild(document.createTextNode(" - "));
-                li.appendChild(document.createTextNode(data[i].description));
-                li.appendChild(document.createTextNode(" - "));
-                li.appendChild(document.createTextNode(data[i].category));
+                // add a table row
+                const tr = document.createElement("tr");
 
-                // create a button div
-                var btnDiv = document.createElement("div");
+                // add expense
+                const tdExp = document.createElement("td");
+                tdExp.appendChild(
+                    document.createTextNode("₹" + data[i].expense)
+                );
+                tr.appendChild(tdExp);
 
-                // add a edit button
-                var editBtn = document.createElement("button");
-                editBtn.className = "px-3 py-1 bg-black text-white mr-2 edit";
-                editBtn.appendChild(document.createTextNode("Edit"));
+                // add desc
+                const tdDesc = document.createElement("td");
+                tdDesc.appendChild(
+                    document.createTextNode(data[i].description)
+                );
+                tr.appendChild(tdDesc);
 
-                // add a delete button
-                var deleteBtn = document.createElement("button");
-                deleteBtn.className = "px-3 py-1 bg-red-700 text-white delete";
-                deleteBtn.appendChild(document.createTextNode("Delete"));
+                // add category
+                const tdCategory = document.createElement("td");
+                tdCategory.appendChild(
+                    document.createTextNode(data[i].category)
+                );
+                tr.appendChild(tdCategory);
 
-                // add btns to btnDiv
-                btnDiv.appendChild(editBtn);
-                btnDiv.appendChild(deleteBtn);
+                // create btnEdit
+                const tdActions = document.createElement("td");
+                const btnEdit = document.createElement("button");
+                btnEdit.className = "px-3 py-1 bg-black text-white mr-2 edit";
+                btnEdit.appendChild(document.createTextNode("Edit"));
 
-                // hidden key
+                const btnDelete = document.createElement("button");
+                btnDelete.className = "px-3 py-1 bg-red-700 text-white delete";
+                btnDelete.appendChild(document.createTextNode("Delete"));
 
-                var keyElem = document.createElement("span");
-                keyElem.className = "hidden";
-                keyElem.appendChild(document.createTextNode(data[i].id));
-                btnDiv.appendChild(keyElem);
+                tdActions.appendChild(btnEdit);
+                tdActions.appendChild(btnDelete);
+                tr.appendChild(tdActions);
 
-                // add btnDiv to li
-                li.appendChild(btnDiv);
+                // append id - hidden
+                let id = document.createElement("span");
+                id.className = "hidden";
+                id.appendChild(document.createTextNode(data[i].id));
+                tr.appendChild(id);
 
-                // append li to details
-                details.appendChild(li);
+                details.appendChild(tr);
             }
         })
         .catch((err) => console.log(err));
@@ -143,14 +150,14 @@ function onSubmit(e) {
 function removeItem(e) {
     // for deleting record
     if (e.target.classList.contains("delete")) {
-        var li = e.target.parentElement.parentElement;
-        var key = li.childNodes[5].childNodes[2].textContent;
+        var tr = e.target.parentElement.parentElement;
+        var key = tr.childNodes[4].textContent;
         let url = baseUrl + "/delete-expense/" + key;
         const token = localStorage.getItem("token");
         axios
             .post(url, null, { headers: { Authorization: token } })
             .then((res) => {
-                details.removeChild(li);
+                details.removeChild(tr);
                 // show success message
                 msgSuccess.classList.remove("hidden");
                 msgSuccess.innerHTML = `<i class="bi bi-check-circle-fill"></i> ${res.data.message}`;
@@ -164,7 +171,7 @@ function removeItem(e) {
     // for editing records
     else if (e.target.classList.contains("edit")) {
         var li = e.target.parentElement.parentElement;
-        var key = li.childNodes[5].childNodes[2].textContent;
+        var key = li.childNodes[4].textContent;
         itemId = key;
 
         // get from server

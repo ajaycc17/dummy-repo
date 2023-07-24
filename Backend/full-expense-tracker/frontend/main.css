@@ -8,9 +8,14 @@ a {
     text-decoration: none;
 }
 
-#details li{
+#details li {
     padding: 10px 0;
 }
-#details li+li{
+#details li + li {
     border-top: 1px solid #e5e7eb;
+}
+
+#table-body td {
+    padding: 0.5rem;
+    border: solid 1px #e5e7eb;
 }
