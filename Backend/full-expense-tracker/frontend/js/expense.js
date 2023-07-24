@@ -204,7 +204,7 @@ function showLeaderboard() {
                 li.appendChild(document.createTextNode(" - "));
                 li.appendChild(
                     document.createTextNode(
-                        "Total Expense: ₹" + data[i].expense
+                        "Total Expense: ₹" + data[i].totalExpense
                     )
                 );
 
