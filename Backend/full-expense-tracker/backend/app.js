@@ -11,6 +11,7 @@ const adminRoutes = require("./routes/admin");
 const expenseRoutes = require("./routes/expense");
 const purchaseRoutes = require("./routes/purchase");
 const premiumRoutes = require("./routes/premium");
+const passwordRoutes = require("./routes/password");
 
 const app = express();
 
@@ -21,6 +22,7 @@ app.use("/user", adminRoutes);
 app.use("/expense", expenseRoutes);
 app.use("/purchase", purchaseRoutes);
 app.use("/premium", premiumRoutes);
+app.use("/password", passwordRoutes);
 
 User.hasMany(Expense);
 Expense.belongsTo(User);
