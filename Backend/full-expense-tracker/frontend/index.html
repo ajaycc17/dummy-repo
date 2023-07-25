@@ -21,7 +21,7 @@
 <body>
     <!-- navbar -->
     <nav class="bg-gray-50 py-2 px-2 md:px-4">
-        <div class="max-w-6xl mx-auto flex justify-between">
+        <div class="max-w-7xl mx-auto flex justify-between">
             <a href="../frontend/index.html" class="flex items-center gap-3">
                 <img src="../frontend/assets/logo.png" width="40px" alt="Expense Tracker">
                 <span class="text-lg head-font font-semibold">Expense Tracker</span>
@@ -33,8 +33,8 @@
         </div>
     </nav>
     <!-- main section -->
-    <main class="min-h-[calc(100vh-101px)] max-w-6xl mx-auto grid grid-cols-12 gap-6 px-2 md:px-4 py-8">
-        <section class="col-span-5">
+    <main class="min-h-[calc(100vh-101px)] max-w-7xl mx-auto grid grid-cols-12 gap-6 px-2 md:px-4 py-8">
+        <section class="col-span-4">
             <!-- header -->
             <h1 class="head-font font-semibold pb-3 text-xl">Add expenses to track</h1>
             <hr>
@@ -72,44 +72,60 @@
                 </button>
             </form>
         </section>
-        <section id="list-expense" class="col-span-7 border-l pl-6">
+        <section id="list-expense" class="col-span-8 border-l pl-6">
             <!-- premium message -->
-            <div class="flex gap-2 items-center">
-                <div id="premium-msg"></div>
-                <button id="leaderboard-btn"
-                    class="hidden bg-black border-2 border-black px-3 py-1 mb-3 text-white">Leaderboard</button>
-            </div>
+            <div id="premium-msg"></div>
             <!-- header -->
             <h1 class="head-font font-semibold pb-3 text-xl">List of existing expenses</h1>
             <hr>
             <!-- expenses -->
             <table class="table-fixed w-full text-left mt-4">
                 <colgroup>
+                    <col style="width:15%">
                     <col style="width:20%">
                     <col style="width:25%">
+                    <col style="width:15%">
                     <col style="width:25%">
-                    <col style="width:30%">
                 </colgroup>
                 <thead>
                     <tr id="table-head">
-                        <th class="border p-2 text-gray-600 font-medium">Exependiture</th>
-                        <th class="border p-2 text-gray-600 font-medium">Description</th>
-                        <th class="border p-2 text-gray-600 font-medium">Category</th>
-                        <th class="border p-2 text-gray-600 font-medium">Actions</th>
+                        <th class="bg-gray-100 border p-2 text-gray-600 font-medium">Date</th>
+                        <th class="bg-gray-100 border p-2 text-gray-600 font-medium">Exependiture</th>
+                        <th class="bg-gray-100 border p-2 text-gray-600 font-medium">Description</th>
+                        <th class="bg-gray-100 border p-2 text-gray-600 font-medium">Category</th>
+                        <th class="bg-gray-100 border p-2 text-gray-600 font-medium">Actions</th>
                     </tr>
                 </thead>
                 <tbody id="table-body">
                 </tbody>
             </table>
-            <ul id="details" class="mb-8"></ul>
+            <div id="download-report"></div>
 
             <!-- leaderboard -->
-            <h2 id="leaderboardHead" class="hidden head-font font-semibold pb-3 text-xl border-b mb-3">Leaderboard</h2>
-            <ul id="leaderboard"></ul>
+            <div id="leaderboardHead" class="hidden gap-3 w-full item-center pb-3 text-xl border-b mb-3 mt-8">
+                <h2 class="head-font font-semibold mb-0">Leaderboard
+                </h2>
+                <span class="bg-green-100 text-sm px-2 py-1 head-font font-semibold text-green-800">Premium</span>
+            </div>
+            <table id="leaderboard-table" class="hidden table-fixed w-full text-left mt-4">
+                <colgroup>
+                    <col style="width:50%">
+                    <col style="width:50%">
+                </colgroup>
+                <thead>
+                    <tr>
+                        <th class="bg-gray-100 border border-gray-300 p-2 text-gray-600 font-medium">Name</th>
+                        <th class="bg-gray-100 border border-gray-300 p-2 text-gray-600 font-medium">Expenditure
+                        </th>
+                    </tr>
+                </thead>
+                <tbody id="leaderboard">
+                </tbody>
+            </table>
         </section>
     </main>
     <footer class="bg-gray-300 py-3 px-2 md:px-4">
-        <div class="max-6xl mx-auto text-sm text-center">
+        <div class="max-w-7xl mx-auto text-sm text-center">
             <p>&copy; Copyright 2023 | All rights reserved</p>
         </div>
 

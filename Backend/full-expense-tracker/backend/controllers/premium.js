@@ -26,11 +26,17 @@ exports.leaderBoard = async (req, res, next) => {
         // });
 
         // using custom field in user table
-        const leaderBoardData = await User.findAll({
-            attributes: ["id", "name", "totalExpense"],
-            order: [["totalExpense", "DESC"]],
-        });
-        res.status(200).json(leaderBoardData);
+        if (req.user.isPremiumUser) {
+            const leaderBoardData = await User.findAll({
+                attributes: ["id", "name", "totalExpense"],
+                order: [["totalExpense", "DESC"]],
+            });
+            res.status(200).json(leaderBoardData);
+        } else {
+            res.status(403).json({
+                message: "Subscribe for premium features.",
+            });
+        }
     } catch (err) {
         console.log(err);
         res.status(403).json({ message: "Something went wrong", error: err });

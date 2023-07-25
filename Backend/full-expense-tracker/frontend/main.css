@@ -19,3 +19,10 @@ a {
     padding: 0.5rem;
     border: solid 1px #e5e7eb;
 }
+#leaderboard td {
+    padding: 0.5rem;
+    border: solid 1px #d1d5db;
+}
+#leaderboard tr {
+    background-color: #f9fafb;
+}
