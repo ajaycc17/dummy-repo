@@ -11,25 +11,28 @@ const leaderboardHead = document.querySelector("#leaderboardHead");
 const leaderboard = document.querySelector("#leaderboard");
 const leaderboardTable = document.querySelector("#leaderboard-table");
 const downloadBtn = document.querySelector("#download-report");
+const filesDown = document.querySelector("#filesDown");
+const filesDownHead = document.querySelector("#filesDownHead");
 
 const baseUrl = "http://localhost:3000/expense";
 
 const months = [
-    "January",
-    "February",
-    "March",
-    "April",
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
     "May",
-    "June",
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
 ];
 
 // add eventListeners
+downloadBtn.addEventListener("click", handleDownload);
 details.addEventListener("click", removeItem);
 window.addEventListener("load", showItems);
 var itemId = "";
@@ -37,7 +40,9 @@ var itemId = "";
 // fetch and display item
 function showItems() {
     details.innerHTML = "";
+    downloadBtn.innerHTML = "";
     let data = [];
+    let files = [];
     const token = localStorage.getItem("token");
     let daily, monthly, yearly, prevdaily, prevmonthly, prevyearly;
     let dailyExp = 0,
@@ -49,6 +54,7 @@ function showItems() {
         .get(baseUrl, { headers: { Authorization: token } })
         .then((res) => {
             data = res.data.data;
+            files = res.data.filesDown;
             const isPremium = res.data.isPremium;
             if (isPremium) {
                 premiumMsg.className =
@@ -60,39 +66,44 @@ function showItems() {
             for (var i = 0; i < data.length; i++) {
                 let fetchedDate = data[i].createdAt;
                 fetchedDate = new Date(fetchedDate);
+                fetchedDate.setHours(0, 0, 0, 0);
                 if (isPremium) {
                     // get day, month and year
                     daily = fetchedDate;
                     monthly = fetchedDate.getMonth();
                     yearly = fetchedDate.getFullYear();
+                    let flag = 0;
 
-                    if (daily !== prevdaily && prevdaily !== undefined) {
-                        const dailyTr = document.createElement("tr");
-                        dailyTr.classList = "bg-yellow-50";
-                        const tdEmp1 = document.createElement("td");
-                        const tdEmp2 = document.createElement("td");
-                        const tdEmp3 = document.createElement("td");
-                        const tdEmp4 = document.createElement("td");
+                    // create table for report
+                    const reportTr = document.createElement("tr");
+                    reportTr.classList = "font-medium";
+                    const tdEmp1 = document.createElement("td");
+                    const tdEmp2 = document.createElement("td");
+                    const tdEmp3 = document.createElement("td");
+                    const tdEmp4 = document.createElement("td");
+                    const tdTotal = document.createElement("td");
+
+                    if (
+                        prevdaily !== undefined &&
+                        daily.toDateString() !== prevdaily.toDateString()
+                    ) {
                         tdEmp4.appendChild(
                             document.createTextNode(
-                                months[monthly] +
+                                months[prevmonthly] +
                                     " " +
-                                    daily.getDate() +
+                                    prevdaily.getDate() +
                                     ", " +
-                                    yearly
+                                    prevyearly +
+                                    ":"
                             )
                         );
-                        const tdTotal = document.createElement("td");
                         tdTotal.appendChild(
                             document.createTextNode("₹" + dailyExp)
                         );
-                        dailyTr.appendChild(tdEmp1);
-                        dailyTr.appendChild(tdEmp2);
-                        dailyTr.appendChild(tdEmp3);
-                        dailyTr.appendChild(tdEmp4);
-                        dailyTr.appendChild(tdTotal);
-                        details.appendChild(dailyTr);
+                        tdEmp4.className = "bg-yellow-50";
+                        tdTotal.className = "bg-yellow-50";
                         dailyExp = 0;
+                        flag = 1;
                     }
                     if (
                         ((monthly !== prevmonthly && yearly !== prevyearly) ||
@@ -102,47 +113,39 @@ function showItems() {
                                 yearly !== prevyearly)) &&
                         prevmonthly !== undefined
                     ) {
-                        const monthlyTr = document.createElement("tr");
-                        monthlyTr.classList = "bg-indigo-50";
-                        const tdEmp1 = document.createElement("td");
-                        const tdEmp2 = document.createElement("td");
-                        const tdEmp3 = document.createElement("td");
-                        const tdEmp4 = document.createElement("td");
-                        tdEmp4.appendChild(
+                        tdEmp3.appendChild(
                             document.createTextNode(
-                                months[monthly] + " " + yearly
+                                months[prevmonthly] +
+                                    ", " +
+                                    prevyearly +
+                                    ": " +
+                                    "₹" +
+                                    monthlyExp
                             )
                         );
-                        const tdTotal = document.createElement("td");
-                        tdTotal.appendChild(
-                            document.createTextNode("₹" + monthlyExp)
-                        );
-                        monthlyTr.appendChild(tdEmp1);
-                        monthlyTr.appendChild(tdEmp2);
-                        monthlyTr.appendChild(tdEmp3);
-                        monthlyTr.appendChild(tdEmp4);
-                        monthlyTr.appendChild(tdTotal);
-                        details.appendChild(monthlyTr);
+                        tdEmp3.className = "bg-emerald-50";
+                        flag = 1;
                         monthlyExp = 0;
                     }
                     if (yearly !== prevyearly && prevyearly !== undefined) {
-                        const yearlyTr = document.createElement("tr");
-                        const tdEmp1 = document.createElement("td");
-                        const tdEmp2 = document.createElement("td");
-                        const tdEmp3 = document.createElement("td");
-                        const tdEmp4 = document.createElement("td");
-                        tdEmp4.appendChild(document.createTextNode(yearly));
-                        const tdTotal = document.createElement("td");
-                        tdTotal.appendChild(
+                        tdEmp1.appendChild(
+                            document.createTextNode("Year " + prevyearly + ":")
+                        );
+                        tdEmp2.appendChild(
                             document.createTextNode("₹" + yearlyExp)
                         );
-                        yearlyTr.appendChild(tdEmp1);
-                        yearlyTr.appendChild(tdEmp2);
-                        yearlyTr.appendChild(tdEmp3);
-                        yearlyTr.appendChild(tdEmp4);
-                        yearlyTr.appendChild(tdTotal);
-                        details.appendChild(yearlyTr);
+                        tdEmp1.className = "bg-indigo-50";
+                        tdEmp2.className = "bg-indigo-50";
+                        flag = 1;
                         yearlyExp = 0;
+                    }
+                    reportTr.appendChild(tdEmp1);
+                    reportTr.appendChild(tdEmp2);
+                    reportTr.appendChild(tdEmp3);
+                    reportTr.appendChild(tdEmp4);
+                    reportTr.appendChild(tdTotal);
+                    if (flag === 1) {
+                        details.appendChild(reportTr);
                     }
                     dailyExp += Number(data[i].expense);
                     monthlyExp += Number(data[i].expense);
@@ -159,7 +162,7 @@ function showItems() {
                     document.createTextNode(
                         fetchedDate.getDate() +
                             "-" +
-                            fetchedDate.getMonth() +
+                            (fetchedDate.getMonth() + 1) +
                             "-" +
                             fetchedDate.getFullYear()
                     )
@@ -216,103 +219,109 @@ function showItems() {
                 }
             }
             if (isPremium) {
-                let nowDate = new Date();
-                {
-                    const dailyTr = document.createElement("tr");
-                    dailyTr.classList = "bg-yellow-50";
-                    const tdEmp1 = document.createElement("td");
-                    const tdEmp2 = document.createElement("td");
-                    const tdEmp4 = document.createElement("td");
-                    const tdEmp3 = document.createElement("td");
-                    tdEmp3.appendChild(
-                        document.createTextNode(
-                            nowDate.getDate() +
-                                "-" +
-                                nowDate.getMonth() +
-                                "-" +
-                                nowDate.getFullYear()
-                        )
-                    );
-                    const tdTotal = document.createElement("td");
-                    tdTotal.appendChild(
-                        document.createTextNode("₹" + dailyExp)
-                    );
-                    dailyTr.appendChild(tdEmp1);
-                    dailyTr.appendChild(tdEmp2);
-                    dailyTr.appendChild(tdEmp4);
-                    dailyTr.appendChild(tdEmp3);
-                    dailyTr.appendChild(tdTotal);
-                    details.appendChild(dailyTr);
-                    dailyExp = 0;
-                }
-                {
-                    const monthlyTr = document.createElement("tr");
-                    monthlyTr.classList = "bg-blue-50";
-                    const tdEmp1 = document.createElement("td");
-                    const tdEmp2 = document.createElement("td");
-                    const tdEmp4 = document.createElement("td");
-                    const tdEmp3 = document.createElement("td");
-                    tdEmp3.appendChild(
-                        document.createTextNode(months[nowDate.getMonth()])
-                    );
-                    const tdTotal = document.createElement("td");
-                    tdTotal.appendChild(
-                        document.createTextNode("₹" + monthlyExp)
-                    );
-                    monthlyTr.appendChild(tdEmp1);
-                    monthlyTr.appendChild(tdEmp2);
-                    monthlyTr.appendChild(tdEmp4);
-                    monthlyTr.appendChild(tdEmp3);
-                    monthlyTr.appendChild(tdTotal);
-                    details.appendChild(monthlyTr);
-                    monthlyExp = 0;
-                }
-                {
-                    const yearlyTr = document.createElement("tr");
-                    yearlyTr.classList = "bg-red-50";
-                    const tdEmp1 = document.createElement("td");
-                    const tdEmp2 = document.createElement("td");
-                    const tdEmp4 = document.createElement("td");
-                    const tdEmp3 = document.createElement("td");
-                    tdEmp3.appendChild(
-                        document.createTextNode(nowDate.getFullYear())
-                    );
-                    const tdTotal = document.createElement("td");
-                    tdTotal.appendChild(
-                        document.createTextNode("₹" + yearlyExp)
-                    );
-                    yearlyTr.appendChild(tdEmp1);
-                    yearlyTr.appendChild(tdEmp2);
-                    yearlyTr.appendChild(tdEmp4);
-                    yearlyTr.appendChild(tdEmp3);
-                    yearlyTr.appendChild(tdTotal);
-                    details.appendChild(yearlyTr);
-                    yearlyExp = 0;
-                }
+                const totalReportTr = document.createElement("tr");
+                totalReportTr.classList = "font-medium";
+                const tdEmp1 = document.createElement("td");
+                const tdEmp2 = document.createElement("td");
+                const tdEmp3 = document.createElement("td");
+                const tdEmp4 = document.createElement("td");
+                const tdTotal = document.createElement("td");
+
+                // for daily
+                tdEmp4.appendChild(
+                    document.createTextNode(
+                        months[monthly] +
+                            " " +
+                            daily.getDate() +
+                            ", " +
+                            yearly +
+                            ": "
+                    )
+                );
+                tdTotal.appendChild(document.createTextNode("₹" + dailyExp));
+                tdEmp4.className = "bg-yellow-50";
+                tdTotal.className = "bg-yellow-50";
+
+                // add monthly details
+                tdEmp3.appendChild(
+                    document.createTextNode(
+                        months[monthly] + ", " + yearly + ": ₹" + monthlyExp
+                    )
+                );
+                tdEmp3.className = "bg-emerald-50";
+
+                // add year details
+                tdEmp1.appendChild(
+                    document.createTextNode("Year " + yearly + ": ")
+                );
+                tdEmp2.appendChild(document.createTextNode("₹" + yearlyExp));
+                tdEmp1.className = "bg-indigo-50";
+                tdEmp2.className = "bg-indigo-50";
+
+                // add the row
+                totalReportTr.appendChild(tdEmp1);
+                totalReportTr.appendChild(tdEmp2);
+                totalReportTr.appendChild(tdEmp3);
+                totalReportTr.appendChild(tdEmp4);
+                totalReportTr.appendChild(tdTotal);
+                details.appendChild(totalReportTr);
+
+                // add the total details
                 {
                     const tillNowTr = document.createElement("tr");
-                    tillNowTr.classList = "bg-sky-50 font-semibold";
+                    tillNowTr.classList =
+                        "bg-red-50 font-semibold text-red-800";
                     const tdEmp1 = document.createElement("td");
-                    const tdEmp2 = document.createElement("td");
-                    const tdEmp4 = document.createElement("td");
-                    const tdEmp3 = document.createElement("td");
-                    tdEmp3.appendChild(document.createTextNode("Total:"));
+                    tdEmp1.colSpan = "4";
                     const tdTotal = document.createElement("td");
+                    tdEmp1.appendChild(
+                        document.createTextNode("Total Expense:")
+                    );
                     tdTotal.appendChild(
                         document.createTextNode("₹" + tillNowExp)
                     );
                     tillNowTr.appendChild(tdEmp1);
-                    tillNowTr.appendChild(tdEmp2);
-                    tillNowTr.appendChild(tdEmp4);
-                    tillNowTr.appendChild(tdEmp3);
                     tillNowTr.appendChild(tdTotal);
                     details.appendChild(tillNowTr);
                 }
-                const downBtn = document.createElement("button");
-                downBtn.classList =
-                    "px-3 py-1 mt-3 bg-green-700 text-white delete";
-                downBtn.appendChild(document.createTextNode("Download report"));
-                downloadBtn.appendChild(downBtn);
+                downloadBtn.classList.remove("hidden");
+                downloadBtn.appendChild(
+                    document.createTextNode("Download report")
+                );
+
+                // show downloaded reports
+                filesDownHead.classList.remove("hidden");
+                filesDownHead.classList.add("flex");
+
+                for (let k = 0; k < files.length; k++) {
+                    // show downloaded files
+                    // the date
+                    let gotDate = files[i].createdAt;
+                    gotDate = new Date(gotDate);
+
+                    // create li
+                    const filesLi = document.createElement("li");
+                    filesLi.className = "py-2 flex justify-between";
+
+                    const linkTo = document.createElement("a");
+                    linkTo.href = files[i].filesUrl;
+                    linkTo.className = "text-blue-800 font-medium";
+                    linkTo.appendChild(
+                        document.createTextNode("Report - " + Number(k + 1))
+                    );
+                    filesLi.appendChild(linkTo);
+
+                    filesLi.appendChild(
+                        document.createTextNode(
+                            months[gotDate.getMonth()] +
+                                " " +
+                                gotDate.getDate() +
+                                ", " +
+                                gotDate.getFullYear()
+                        )
+                    );
+                    filesDown.appendChild(filesLi);
+                }
             }
         })
         .catch((err) => console.log(err));
@@ -381,7 +390,8 @@ function removeItem(e) {
     // for deleting record
     if (e.target.classList.contains("delete")) {
         var tr = e.target.parentElement.parentElement;
-        var key = tr.childNodes[4].textContent;
+        var key = tr.childNodes[5].textContent;
+        console.log(key);
         let url = baseUrl + "/delete-expense/" + key;
         const token = localStorage.getItem("token");
         axios
@@ -395,13 +405,14 @@ function removeItem(e) {
                     msgSuccess.innerHTML = "";
                     msgSuccess.classList.add("hidden");
                 }, 3000);
+                showItems();
             })
             .catch((err) => console.log(err));
     }
     // for editing records
     else if (e.target.classList.contains("edit")) {
         var li = e.target.parentElement.parentElement;
-        var key = li.childNodes[4].textContent;
+        var key = li.childNodes[5].textContent;
         itemId = key;
 
         // get from server
@@ -497,3 +508,14 @@ document.getElementById("rzp-btn").onclick = async function (e) {
         alert("Something went wrong");
     });
 };
+
+async function handleDownload() {
+    const token = localStorage.getItem("token");
+    let url = baseUrl + "/download";
+    const res = await axios.get(url, { headers: { Authorization: token } });
+    if (res.status === 200) {
+        // console.log(res.data);
+        window.open(res.data.fileUrl, "_blank");
+        showItems();
+    }
+}

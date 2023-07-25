@@ -11,7 +11,8 @@ a {
 #details li {
     padding: 10px 0;
 }
-#details li + li {
+#details li + li,
+#filesDown li + li {
     border-top: 1px solid #e5e7eb;
 }
 
@@ -21,8 +22,8 @@ a {
 }
 #leaderboard td {
     padding: 0.5rem;
-    border: solid 1px #d1d5db;
+    border: solid 1px #e5e7eb;
 }
 #leaderboard tr {
-    background-color: #f9fafb;
+    background-color: #fefce8;
 }

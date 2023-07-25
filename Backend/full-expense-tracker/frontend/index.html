@@ -99,7 +99,9 @@
                 <tbody id="table-body">
                 </tbody>
             </table>
-            <div id="download-report"></div>
+            <div>
+                <button id="download-report" class="hidden"></button>
+            </div>
 
             <!-- leaderboard -->
             <div id="leaderboardHead" class="hidden gap-3 w-full item-center pb-3 text-xl border-b mb-3 mt-8">
@@ -122,6 +124,13 @@
                 <tbody id="leaderboard">
                 </tbody>
             </table>
+            <!-- files downloaded -->
+            <div id="filesDownHead" class="hidden gap-3 w-full item-center pb-3 text-xl border-b mt-8">
+                <h2 class="head-font font-semibold mb-0">Reports Generated
+                </h2>
+                <span class="bg-green-100 text-sm px-2 py-1 head-font font-semibold text-green-800">Premium</span>
+            </div>
+            <ul id="filesDown"></ul>
         </section>
     </main>
     <footer class="bg-gray-300 py-3 px-2 md:px-4">

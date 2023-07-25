@@ -1,18 +1,54 @@
 const Expense = require("../models/expense");
 const User = require("../models/user");
+const FilesDown = require("../models/filesDown");
 const sequelize = require("../utils/database");
+const s3Services = require("../services/s3service");
 
-exports.getAllExpenses = (req, res, next) => {
-    req.user
-        .getExpenses() //magic method
-        // Expense.findAll({ where: { userId: req.user.id } })
-        .then((expenses) => {
-            res.status(200).json({
-                data: expenses,
-                isPremium: req.user.isPremiumUser,
+exports.downloadReport = async (req, res, next) => {
+    try {
+        //magic method
+        const expenses = await req.user.getExpenses({
+            order: [["createdAt", "ASC"]],
+        });
+        const stringifiedExp = JSON.stringify(expenses);
+        let newTime = new Date();
+        newTime = newTime.getTime();
+        const fileName = `expense${req.user.id}/${newTime}.txt`;
+        const fileUrl = await s3Services.uploadToS3(stringifiedExp, fileName);
+
+        await FilesDown.create({
+            filesUrl: fileUrl,
+            userId: req.user.id,
+        });
+
+        res.status(200).json({
+            fileUrl,
+            success: true,
+        });
+    } catch (err) {
+        res.status(500).json({ fileUrl: "", success: false, message: err });
+    }
+};
+
+exports.getAllExpenses = async (req, res, next) => {
+    try {
+        const expenses = await req.user.getExpenses({
+            order: [["createdAt", "ASC"]],
+        });
+        let downs;
+        if (req.user.isPremiumUser) {
+            downs = await FilesDown.findAll({
+                where: { userId: req.user.id },
             });
-        })
-        .catch((err) => res.status(500).json({ message: err }));
+        }
+        res.status(200).json({
+            data: expenses,
+            isPremium: req.user.isPremiumUser,
+            filesDown: downs,
+        });
+    } catch (err) {
+        res.status(500).json({ message: err });
+    }
 };
 
 exports.getOneExpense = (req, res, next) => {
