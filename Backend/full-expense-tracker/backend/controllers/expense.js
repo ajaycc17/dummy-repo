@@ -31,20 +31,67 @@ exports.downloadReport = async (req, res, next) => {
 };
 
 exports.getAllExpenses = async (req, res, next) => {
+    const pageNum = req.query.page || 0;
+    const pageNumFiles = req.query.filepage || 0;
+    const off = pageNum * 10;
+    const offFiles = pageNumFiles * 10;
     try {
         const expenses = await req.user.getExpenses({
-            order: [["createdAt", "ASC"]],
+            order: [["createdAt", "DESC"]],
+            offset: off,
+            limit: 10,
         });
-        let downs;
+        const totalRows = await Expense.count({
+            where: {
+                userId: req.user.id,
+            },
+        });
+        let today = new Date();
+        today.setHours(0, 0, 0, 0);
+        let thisCurrDay = new Date(req.user.currDay);
+        thisCurrDay.setHours(0, 0, 0, 0);
+        let thisDay = 0,
+            thisMonth = 0,
+            thisYear = 0;
+
+        if (thisCurrDay.toDateString() === today.toDateString()) {
+            thisDay = req.user.thisDay;
+        }
+        if (
+            req.user.currMonth === today.getMonth() &&
+            req.user.currYear === today.getFullYear()
+        ) {
+            thisMonth = req.user.thisMonth;
+        }
+        if (req.user.currYear === today.getFullYear()) {
+            thisYear = req.user.thisYear;
+        }
+
+        // doanload reports
+        let downs, totalFiles;
         if (req.user.isPremiumUser) {
             downs = await FilesDown.findAll({
+                attributes: ["filesUrl", "createdAt"],
+                order: [["createdAt", "DESC"]],
+                offset: offFiles,
+                limit: 10,
+                where: { userId: req.user.id },
+            });
+            totalFiles = await FilesDown.count({
                 where: { userId: req.user.id },
             });
         }
+        // return response
         res.status(200).json({
-            data: expenses,
             isPremium: req.user.isPremiumUser,
+            data: expenses,
+            totalRows: totalRows,
+            thisDay: thisDay,
+            thisMonth: thisMonth,
+            thisYear: thisYear,
+            totalExpense: req.user.totalExpense,
             filesDown: downs,
+            totalFiles: totalFiles,
         });
     } catch (err) {
         res.status(500).json({ message: err });
@@ -78,8 +125,36 @@ exports.addNewExpense = async (req, res, next) => {
             { transaction: t }
         );
         const totalExpense = Number(req.user.totalExpense) + Number(expense);
-        const user = await User.update(
-            { totalExpense: totalExpense },
+
+        let today = new Date();
+        today.setHours(0, 0, 0, 0);
+        let thisCurrDay = new Date(req.user.currDay);
+        thisCurrDay.setHours(0, 0, 0, 0);
+        let thisDay = expense,
+            thisMonth = expense,
+            thisYear = expense;
+        if (thisCurrDay.toDateString() === today.toDateString()) {
+            thisDay = req.user.thisDay + Number(expense);
+        }
+        if (
+            req.user.currMonth === today.getMonth() &&
+            req.user.currYear === today.getFullYear()
+        ) {
+            thisMonth = req.user.thisMonth + Number(expense);
+        }
+        if (req.user.currYear === today.getFullYear()) {
+            thisYear = req.user.thisYear + Number(expense);
+        }
+        await User.update(
+            {
+                totalExpense: totalExpense,
+                thisDay: thisDay,
+                thisMonth: thisMonth,
+                thisYear: thisYear,
+                currDay: today.toISOString(),
+                currMonth: today.getMonth(),
+                currYear: today.getFullYear(),
+            },
             {
                 where: { id: req.user.id },
                 transaction: t,
@@ -121,6 +196,25 @@ exports.editExpense = async (req, res, next) => {
             transaction: t,
         });
         user.totalExpense = user.totalExpense - oldExpense + Number(expense);
+        // edit thid day data
+        let today = new Date();
+        today.setHours(0, 0, 0, 0);
+        let thisCurrDay = new Date(item.createdAt);
+        thisCurrDay.setHours(0, 0, 0, 0);
+
+        if (thisCurrDay.toDateString() === today.toDateString()) {
+            user.thisDay += Number(expense) - oldExpense;
+        }
+        if (
+            user.currMonth === today.getMonth() &&
+            user.currYear === today.getFullYear()
+        ) {
+            user.thisMonth += Number(expense) - oldExpense;
+        }
+        if (user.currYear === today.getFullYear()) {
+            user.thisYear += Number(expense) - oldExpense;
+        }
+
         await user.save();
         await t.commit();
 
@@ -145,6 +239,7 @@ exports.deleteExpense = async (req, res, next) => {
         });
         const item = items[0];
         const oldExpense = item.expense;
+        let thisCurrDay = new Date(item.createdAt);
         await item.destroy();
 
         const user = await User.findOne({
@@ -152,6 +247,23 @@ exports.deleteExpense = async (req, res, next) => {
             transaction: t,
         });
         user.totalExpense = user.totalExpense - oldExpense;
+        // edit thid day data
+        let today = new Date();
+        today.setHours(0, 0, 0, 0);
+        thisCurrDay.setHours(0, 0, 0, 0);
+
+        if (thisCurrDay.toDateString() === today.toDateString()) {
+            user.thisDay -= Number(oldExpense);
+        }
+        if (
+            user.currMonth === today.getMonth() &&
+            user.currYear === today.getFullYear()
+        ) {
+            user.thisMonth -= Number(oldExpense);
+        }
+        if (user.currYear === today.getFullYear()) {
+            user.thisYear -= Number(oldExpense);
+        }
         await user.save();
 
         await t.commit();

@@ -1,6 +1,5 @@
 const jwt = require("jsonwebtoken");
 const User = require("../models/user");
-const { use } = require("../routes/admin");
 
 exports.authenticate = (req, res, next) => {
     try {

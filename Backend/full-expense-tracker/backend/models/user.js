@@ -24,6 +24,12 @@ const User = sequelize.define("user", {
     },
     isPremiumUser: Sequelize.BOOLEAN,
     totalExpense: { type: Sequelize.DOUBLE, defaultValue: 0 },
+    currMonth: Sequelize.INTEGER,
+    currDay: Sequelize.DATE,
+    currYear: Sequelize.INTEGER,
+    thisDay: Sequelize.DOUBLE,
+    thisMonth: Sequelize.DOUBLE,
+    thisYear: Sequelize.DOUBLE,
 });
 
 module.exports = User;
