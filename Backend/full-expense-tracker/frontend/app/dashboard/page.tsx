@@ -27,6 +27,8 @@ export default function Dashboard() {
     const [totalLeaderRows, setTotalLeaderRows] = useState(0);
 
     const [totalExpRows, setTotalExpRows] = useState(0);
+    const expRows = localStorage.getItem("expRows");
+    const [limitRows, setLimitRows] = useState(Number(expRows));
     const [dataexp, setDataexp] = useState([] as any);
     const [dayDataexp, setDayDataexp] = useState([] as any);
     const [files, setFiles] = useState([] as any);
@@ -38,7 +40,8 @@ export default function Dashboard() {
         const token = localStorage.getItem("token");
         // get expense and downloadeds data together
         let url =
-            baseUrl + `/expense?page=${ExpPageNum}&filepage=${filesPageNum}`;
+            baseUrl +
+            `/expense?page=${ExpPageNum}&filepage=${filesPageNum}&limit=${limitRows}`;
         axios
             .get(url, {
                 headers: { Authorization: token },
@@ -71,7 +74,6 @@ export default function Dashboard() {
             })
             .catch((err) => console.log(err));
     }, [effectLogic]);
-    console.log(files);
     const handleReportDown = async () => {
         // get report link
         const token = localStorage.getItem("token");
@@ -84,8 +86,13 @@ export default function Dashboard() {
         }
     };
 
-    const handlePaginaExp = (pageN: number) => {
+    const handlePaginaExp = (pageN: number, limit: number) => {
         setExpPageNum(pageN);
+        if (limit <= totalExpRows) {
+            setLimitRows(limit);
+        } else {
+            setLimitRows(totalExpRows);
+        }
         seteffectLogic(!effectLogic);
     };
     const handlePaginaFiles = (pageN: number) => {
@@ -152,7 +159,6 @@ export default function Dashboard() {
                 });
                 setAmt("");
                 setDesc("");
-                setCategory("");
                 seteffectLogic(!effectLogic);
                 // show success message
                 setSuccess(res.data.message);
@@ -174,7 +180,6 @@ export default function Dashboard() {
 
                 setAmt("");
                 setDesc("");
-                setCategory("");
                 seteffectLogic(!effectLogic);
                 itemId = "";
                 // show success message
@@ -276,6 +281,7 @@ export default function Dashboard() {
                         handlePaginaExp={handlePaginaExp}
                         totalRows={totalExpRows}
                         thisData={dayDataexp}
+                        limitRows={limitRows}
                     />
                 ) : (
                     <ExpenseTable

@@ -1,3 +1,5 @@
+import { useState } from "react";
+
 const months = [
     "Jan",
     "Feb",
@@ -20,6 +22,7 @@ export default function PremiumTable(props: {
     handlePaginaExp: Function;
     pageNum: number;
     totalRows: number;
+    limitRows: number;
     thisData: any[];
 }) {
     let prevdaily: Date, prevmonthly: number, prevyearly: number;
@@ -33,7 +36,7 @@ export default function PremiumTable(props: {
     let monthRowExp = "";
     let dayRow = "",
         dayRowExp = "";
-    const maxPage = Math.ceil(props.totalRows / 10 - 1);
+    const maxPage = Math.ceil(props.totalRows / props.limitRows - 1);
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     let daily: Date = today,
@@ -46,6 +49,34 @@ export default function PremiumTable(props: {
                     Exependiture Report
                 </h1>
                 <div className="flex items-center gap-3 font-head">
+                    <form className="font-medium text-xm text-gray-600">
+                        <select
+                            name="numRows"
+                            id="numRows"
+                            className="bg-gray-50 p-1 px-2.5 border rounded-xl focus:outline-none"
+                            onChange={(
+                                event: React.ChangeEvent<HTMLSelectElement>
+                            ) => {
+                                if (event.target.value !== "0") {
+                                    localStorage.setItem(
+                                        "expRows",
+                                        event.target.value
+                                    );
+                                    props.handlePaginaExp(
+                                        0,
+                                        event.target.value
+                                    );
+                                }
+                            }}
+                        >
+                            <option value={0}>Rows</option>
+                            <option value={5}>5 Rows</option>
+                            <option value={10}>10 Rows</option>
+                            <option value={20}>20 Rows</option>
+                            <option value={30}>30 Rows</option>
+                            <option value={props.totalRows}>All Rows</option>
+                        </select>
+                    </form>
                     <h2 className="font-head font-medium pr-3 border-r">
                         {props.totalRows} Records
                     </h2>
@@ -310,14 +341,16 @@ export default function PremiumTable(props: {
                     Prev
                 </button>
                 <span className="px-4 py-1 bg-gray-200 text-gray-700 font-medium rounded-xl">
-                    {Number(props.pageNum * 10 + 1) +
+                    {Number(props.pageNum * props.limitRows + 1) +
                         " - " +
                         Number(
-                            props.totalRows - props.pageNum * 10 < 10
+                            props.totalRows - props.pageNum * props.limitRows <
+                                props.limitRows
                                 ? props.totalRows -
-                                      props.pageNum * 10 +
-                                      props.pageNum * 10
-                                : props.pageNum * 10 + 10
+                                      props.pageNum * props.limitRows +
+                                      props.pageNum * props.limitRows
+                                : props.pageNum * props.limitRows +
+                                      props.limitRows
                         ) +
                         " out of " +
                         props.totalRows}

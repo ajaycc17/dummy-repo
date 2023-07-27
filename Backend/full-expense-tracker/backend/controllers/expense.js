@@ -33,13 +33,14 @@ exports.downloadReport = async (req, res, next) => {
 exports.getAllExpenses = async (req, res, next) => {
     const pageNum = req.query.page || 0;
     const pageNumFiles = req.query.filepage || 0;
-    const off = pageNum * 10;
+    const limitRowsExp = Number(req.query.limit) || 10;
+    const off = pageNum * limitRowsExp;
     const offFiles = pageNumFiles * 10;
     try {
         const expenses = await req.user.getExpenses({
             order: [["createdAt", "DESC"]],
             offset: off,
-            limit: 10,
+            limit: limitRowsExp,
         });
         const totalRows = await Expense.count({
             where: {
