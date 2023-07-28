@@ -1,40 +1,16 @@
 const Expense = require("../models/expense");
 const User = require("../models/user");
 const FilesDown = require("../models/filesDown");
+
 const sequelize = require("../utils/database");
 const s3Services = require("../services/s3service");
 
-exports.downloadReport = async (req, res, next) => {
-    try {
-        //magic method
-        const expenses = await req.user.getExpenses({
-            order: [["createdAt", "ASC"]],
-        });
-        const stringifiedExp = JSON.stringify(expenses);
-        let newTime = new Date();
-        newTime = newTime.getTime();
-        const fileName = `expense${req.user.id}/${newTime}.txt`;
-        const fileUrl = await s3Services.uploadToS3(stringifiedExp, fileName);
-
-        await FilesDown.create({
-            filesUrl: fileUrl,
-            userId: req.user.id,
-        });
-
-        res.status(200).json({
-            fileUrl,
-            success: true,
-        });
-    } catch (err) {
-        res.status(500).json({ fileUrl: "", success: false, message: err });
-    }
-};
-
-exports.getAllExpenses = async (req, res, next) => {
+exports.getAllExpenses = async (req, res) => {
     const pageNum = req.query.page || 0;
-    const pageNumFiles = req.query.filepage || 0;
     const limitRowsExp = Number(req.query.limit);
     const off = pageNum * limitRowsExp;
+
+    const pageNumFiles = req.query.filepage || 0;
     const offFiles = pageNumFiles * 10;
     try {
         const expenses = await req.user.getExpenses({
@@ -42,11 +18,13 @@ exports.getAllExpenses = async (req, res, next) => {
             offset: off,
             limit: limitRowsExp,
         });
+        // get total rows count
         const totalRows = await Expense.count({
             where: {
                 userId: req.user.id,
             },
         });
+        // get thisday data
         let today = new Date();
         today.setHours(0, 0, 0, 0);
         let thisCurrDay = new Date(req.user.currDay);
@@ -68,7 +46,7 @@ exports.getAllExpenses = async (req, res, next) => {
             thisYear = req.user.thisYear;
         }
 
-        // doanload reports
+        // download reports
         let downs, totalFiles;
         if (req.user.isPremiumUser) {
             downs = await FilesDown.findAll({
@@ -78,6 +56,7 @@ exports.getAllExpenses = async (req, res, next) => {
                 limit: 10,
                 where: { userId: req.user.id },
             });
+            // get total count of files
             totalFiles = await FilesDown.count({
                 where: { userId: req.user.id },
             });
@@ -99,18 +78,18 @@ exports.getAllExpenses = async (req, res, next) => {
     }
 };
 
-exports.getOneExpense = (req, res, next) => {
+exports.getOneExpense = async (req, res) => {
     const expId = req.params.itemId;
-    req.user
-        .getExpenses({ where: { id: expId } })
-        .then((expenses) => {
-            const expense = expenses[0];
-            res.status(200).json(expense);
-        })
-        .catch((err) => res.status(404).json({ message: err }));
+    try {
+        const expenses = await req.user.getExpenses({ where: { id: expId } });
+        const expense = expenses[0];
+        res.status(200).json(expense);
+    } catch (err) {
+        res.status(404).json({ message: err });
+    }
 };
 
-exports.addNewExpense = async (req, res, next) => {
+exports.addNewExpense = async (req, res) => {
     const t = await sequelize.transaction();
     const expense = req.body.amount;
     const desc = req.body.desc;
@@ -275,5 +254,40 @@ exports.deleteExpense = async (req, res, next) => {
     } catch (err) {
         await t.rollback();
         res.status(500).json({ message: err });
+    }
+};
+
+exports.downloadReport = async (req, res) => {
+    const t = await sequelize.transaction();
+    try {
+        //magic method
+        const expenses = await req.user.getExpenses({
+            order: [["createdAt", "ASC"]],
+            transaction: t,
+        });
+        // create txt file
+        const stringifiedExp = JSON.stringify(expenses);
+        let newTime = new Date();
+        newTime = newTime.getTime();
+        const fileName = `expense${req.user.id}/${newTime}.txt`;
+        const fileUrl = await s3Services.uploadToS3(stringifiedExp, fileName);
+
+        // push to db
+        await FilesDown.create(
+            {
+                filesUrl: fileUrl,
+                userId: req.user.id,
+            },
+            { transaction: t }
+        );
+        await t.commit();
+        // return response
+        res.status(200).json({
+            fileUrl,
+            success: true,
+        });
+    } catch (err) {
+        await t.rollback();
+        res.status(500).json({ fileUrl: "", success: false, message: err });
     }
 };

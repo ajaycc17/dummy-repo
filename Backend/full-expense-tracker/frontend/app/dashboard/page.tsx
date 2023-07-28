@@ -14,7 +14,7 @@ export default function Dashboard() {
     const [amt, setAmt] = useState("");
     const [isPremium, setIsPremium] = useState(false);
     const [desc, setDesc] = useState("");
-    const [category, setCategory] = useState("");
+    const [category, setCategory] = useState("household");
 
     const [visibleSuccess, setVisibleSuccess] = useState(false);
     const [success, setSuccess] = useState("");
@@ -245,14 +245,13 @@ export default function Dashboard() {
                             id="category"
                             name="category"
                             className="rounded-xl bg-gray-50 border block w-full p-2.5 focus:outline-none"
-                            value={category}
                             onChange={(
                                 event: React.ChangeEvent<HTMLSelectElement>
                             ) => {
                                 setCategory(event.target.value);
                             }}
                         >
-                            <option selected value="household">
+                            <option value="household" selected>
                                 Household
                             </option>
                             <option value="bills">Bills</option>
@@ -264,7 +263,7 @@ export default function Dashboard() {
                     </div>
                     <button
                         type="submit"
-                        className="text-white bg-black focus:outline-none font-medium px-6 py-2.5 rounded-xl text-center col-span-6 mid:col-span-3 xl:col-span-3"
+                        className="text-white bg-black focus:outline-none font-medium px-6 py-2.5 rounded-xl text-center col-span-6 mid:col-span-3 xl:col-span-2"
                     >
                         Add Expense
                     </button>

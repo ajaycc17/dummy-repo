@@ -1,4 +1,4 @@
-import { jwtVerify, SignJWT } from "jose";
+import { jwtVerify } from "jose";
 
 interface UserJwtPayload {
     jti: string;
@@ -6,7 +6,7 @@ interface UserJwtPayload {
 }
 
 export const getJwtSecretKey = () => {
-    const secret = process.env.SECRET;
+    const secret = process.env.JWT_SECRET;
     if (!secret || secret.length === 0) {
         throw new Error("The env variable SECRET is not set for JWT.");
     }

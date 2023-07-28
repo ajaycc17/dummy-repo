@@ -1,28 +1,34 @@
-const User = require("../models/user");
 const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
 
-function generateAccessToken(id, name) {
-    return jwt.sign({ userId: id, name: name }, "secretKey");
-}
+const User = require("../models/user");
+const sequelize = require("../utils/database");
+const jwtServices = require("../services/jwtService");
 
-exports.signUp = async (req, res, next) => {
+exports.signUp = async (req, res) => {
+    const t = await sequelize.transaction();
     const name = req.body.name;
     const email = req.body.email;
     const password = req.body.password;
     try {
-        const user = await User.findOne({ where: { email: email } });
+        const user = await User.findOne({
+            where: { email: email },
+            transaction: t,
+        });
         if (user === null) {
             const saltRounds = 10;
             bcrypt.hash(password, saltRounds, async (err, hash) => {
                 if (err) {
                     console.log(err);
                 }
-                await User.create({
-                    name: name,
-                    email: email,
-                    password: hash,
-                });
+                await User.create(
+                    {
+                        name: name,
+                        email: email,
+                        password: hash,
+                    },
+                    { transaction: t }
+                );
+                await t.commit();
                 res.status(201).json({
                     success: true,
                     message: "New user created.",
@@ -34,24 +40,31 @@ exports.signUp = async (req, res, next) => {
             });
         }
     } catch (err) {
+        await t.rollback();
         res.status(500).json(err);
     }
 };
 
-exports.logIn = async (req, res, next) => {
+exports.logIn = async (req, res) => {
+    const t = await sequelize.transaction();
     const email = req.body.email;
     const password = req.body.password;
     try {
         const user = await User.findOne({
             where: { email: email },
+            transaction: t,
         });
         if (user !== null) {
-            bcrypt.compare(password, user.password, (err, result) => {
+            bcrypt.compare(password, user.password, async (err, result) => {
                 if (result) {
+                    await t.commit();
                     res.status(200).json({
                         success: true,
                         message: "Successfully logged in.",
-                        token: generateAccessToken(user.id, user.name),
+                        token: jwtServices.generateAccessTokenOnLogin(
+                            user.id,
+                            user.name
+                        ),
                     });
                 } else {
                     return res.status(400).json({
@@ -67,6 +80,7 @@ exports.logIn = async (req, res, next) => {
             });
         }
     } catch (err) {
+        await t.rollback();
         res.status(500).json({ message: err, success: false });
     }
 };

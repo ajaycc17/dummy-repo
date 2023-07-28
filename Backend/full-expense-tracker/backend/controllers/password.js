@@ -1,24 +1,32 @@
-const ForgotPasswordRequests = require("../models/forgotPass");
-const User = require("../models/user");
-var Sib = require("sib-api-v3-sdk");
-const { v4: uuidv4 } = require("uuid");
 const bcrypt = require("bcrypt");
+const { v4: uuidv4 } = require("uuid");
+const Sib = require("sib-api-v3-sdk");
 require("dotenv").config();
 
+const ForgotPasswordRequests = require("../models/forgotPass");
+const sequelize = require("../utils/database");
+const User = require("../models/user");
+
 exports.forgotPass = async (req, res) => {
+    const t = await sequelize.transaction();
     const emailId = req.body.email;
     const newUuid = uuidv4();
     try {
-        const user = await User.findOne({ where: { email: emailId } });
-        // store in table
-        await ForgotPasswordRequests.create({
-            id: newUuid,
-            userId: user.id,
-            isActive: true,
+        const user = await User.findOne({
+            where: { email: emailId },
+            transaction: t,
         });
+        // store in table
+        await ForgotPasswordRequests.create(
+            {
+                id: newUuid,
+                userId: user.id,
+                isActive: true,
+            },
+            { transaction: t }
+        );
         // generate a link
-        const resetLink =
-            "http://localhost:3000/password/resetpassword/" + newUuid;
+        const resetLink = process.env.RESET_PASS_LINK + newUuid;
 
         // email client
         Sib.ApiClient.instance.authentications["api-key"].apiKey =
@@ -26,23 +34,23 @@ exports.forgotPass = async (req, res) => {
 
         new Sib.TransactionalEmailsApi()
             .sendTransacEmail({
-                subject: "Hello from the Node SDK!",
+                subject: "Password reset link from Expense Tracker!",
                 sender: {
-                    email: "ajaycc17@gmail.com",
+                    email: process.env.MY_EMAIL,
                     name: "Expense Tracker",
                 },
                 replyTo: {
-                    email: "ajaycc17@gmail.com",
+                    email: process.env.MY_EMAIL,
                     name: "Expense Tracker",
                 },
-                to: [{ name: "John Doe", email: emailId }],
+                to: [{ name: user.name, email: emailId }],
                 textContent:
                     "This is your link to reset password: {{params.resetLink}}",
                 params: { resetLink: resetLink },
             })
             .then(
-                function (data) {
-                    console.log(data);
+                async () => {
+                    await t.commit();
                     res.json({
                         message: "Link sent to the email.",
                         success: true,
@@ -53,11 +61,12 @@ exports.forgotPass = async (req, res) => {
                 }
             );
     } catch (error) {
+        await t.rollback();
         res.json({ message: error });
     }
 };
 
-exports.resetPass = async (req, res, next) => {
+exports.resetPass = async (req, res) => {
     const reqId = req.params.resetuuid;
     try {
         const request = await ForgotPasswordRequests.findOne({
@@ -75,13 +84,14 @@ exports.resetPass = async (req, res, next) => {
     }
 };
 
-exports.changePass = async (req, res, next) => {
+exports.changePass = async (req, res) => {
+    const t = await sequelize.transaction();
     const newPass = req.body.setPass;
     const theUuid = req.body.theUuid;
-    console.log(req.body);
     try {
         const request = await ForgotPasswordRequests.findOne({
             where: { id: theUuid },
+            transaction: t,
         });
         if (request !== null) {
             if (request.isActive) {
@@ -93,6 +103,7 @@ exports.changePass = async (req, res, next) => {
                     }
                     const user = await User.findOne({
                         where: { id: userId },
+                        transaction: t,
                     });
                     user.password = hash;
                     await user.save();
@@ -100,13 +111,13 @@ exports.changePass = async (req, res, next) => {
                     request.isActive = false;
                     await request.save();
 
-                    res.status(201).redirect(
-                        "http://127.0.0.1:5500/frontend/login.html"
-                    );
+                    await t.commit();
+                    res.status(201).redirect(process.env.LOGIN_LINK);
                 });
             }
         }
     } catch (err) {
+        await t.rollback();
         res.json({ message: err });
     }
 };
