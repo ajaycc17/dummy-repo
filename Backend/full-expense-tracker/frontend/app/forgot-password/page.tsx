@@ -32,9 +32,9 @@ export default function ForgotPass() {
         }
     };
     return (
-        <div className="min-h-[calc(100vh-116px)] flex items-center">
+        <div className="min-h-[calc(100vh-116px)] flex items-center px-2 md:px-4">
             <section className="w-full md:max-w-md mx-auto bg-white p-6 rounded-2xl my-8">
-                <h1 className="font-head font-semibold mb-1 text-center text-3xl">
+                <h1 className="font-head font-semibold mb-1 text-center text-2xl md:text-3xl">
                     Enter you email id
                 </h1>
                 <p className="text-center pb-3 text-lg border-b">

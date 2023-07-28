@@ -33,7 +33,7 @@ exports.downloadReport = async (req, res, next) => {
 exports.getAllExpenses = async (req, res, next) => {
     const pageNum = req.query.page || 0;
     const pageNumFiles = req.query.filepage || 0;
-    const limitRowsExp = Number(req.query.limit) || 10;
+    const limitRowsExp = Number(req.query.limit);
     const off = pageNum * limitRowsExp;
     const offFiles = pageNumFiles * 10;
     try {

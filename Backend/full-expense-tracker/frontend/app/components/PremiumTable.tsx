@@ -42,14 +42,22 @@ export default function PremiumTable(props: {
     let daily: Date = today,
         monthly,
         yearly;
+    // pagination rows show
+    let start = 0,
+        mid = 0;
+    if (props.totalRows > 0) {
+        start = props.pageNum * props.limitRows + 1;
+        mid = props.pageNum * props.limitRows + props.limitRows;
+        mid = mid > props.totalRows ? props.totalRows : mid;
+    }
     return (
-        <section className="bg-white p-6 rounded-2xl">
-            <div className="flex items-center justify-between">
-                <h1 className="font-head font-semibold text-xl">
+        <section className="bg-white py-6 px-4 mid:p-6 rounded-2xl">
+            <div className="flex flex-col mid:flex-row mid:items-center justify-between gap-2">
+                <h1 className="font-head font-semibold text-xl border-b mid:border-none pb-2 mid:pb-0">
                     Exependiture Report
                 </h1>
-                <div className="flex items-center gap-3 font-head">
-                    <form className="font-medium text-xm text-gray-600">
+                <div className="flex items-center justify-between gap-3 font-head">
+                    <form className="font-medium text-sm mid:text-base text-gray-600">
                         <select
                             name="numRows"
                             id="numRows"
@@ -77,35 +85,24 @@ export default function PremiumTable(props: {
                             <option value={props.totalRows}>All Rows</option>
                         </select>
                     </form>
-                    <h2 className="font-head font-medium pr-3 border-r">
-                        {props.totalRows} Records
-                    </h2>
                     <button
-                        className="py-1.5 px-4 bg-[#edf9e7] text-green-700 font-medium flex items-center rounded-xl"
+                        className="text-sm mid:text-base py-1 px-4 bg-[#edf9e7] text-green-700 font-medium flex items-center rounded-xl"
                         onClick={() => props.ReportGeneratorCallback()}
                     >
                         Download Report
                     </button>
                 </div>
             </div>
-            <table className="table-fixed w-full text-left mt-4 font-medium font-head">
-                <colgroup>
-                    <col style={{ width: "15%" }} />
-                    <col style={{ width: "20%" }} />
-                    <col style={{ width: "25%" }} />
-                    <col style={{ width: "15%" }} />
-                    <col style={{ width: "25%" }} />
-                </colgroup>
-                <thead>
-                    <tr className="border-y bg-gray-50">
-                        <th className="p-2">Date</th>
-                        <th className="p-2">Exependiture</th>
-                        <th className="p-2">Description</th>
-                        <th className="p-2">Category</th>
-                        <th className="p-2">Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
+            {/* data table */}
+            <div className="mt-4 font-medium">
+                <article className="hidden mid:grid grid-cols-12 border-y bg-gray-50 font-semibold">
+                    <h3 className="col-span-2 p-2">Date</h3>
+                    <h3 className="col-span-2 p-2">Exependiture</h3>
+                    <h3 className="col-span-3 p-2">Description</h3>
+                    <h3 className="col-span-2 p-2">Category</h3>
+                    <h3 className="col-span-3 p-2">Actions</h3>
+                </article>
+                <div className="border-t mid:border-none">
                     {props.data.map((item: any) => {
                         const date = new Date(item.createdAt);
                         date.setHours(0, 0, 0, 0);
@@ -156,55 +153,57 @@ export default function PremiumTable(props: {
                             yearlyExp = 0;
                         }
                         const insight = (
-                            <tr className="font-medium border-y bg-gray-50">
-                                <td className="p-2" colSpan={2}>
+                            <article className="grid grid-cols-12 gap-2 mid:gap-0 border-b bg-gray-50 text-sm mid:text-base">
+                                <div className="col-span-4 py-2 mid:p-2">
                                     {yearlyExp === 0 && (
-                                        <span className="flex items-center bg-indigo-50 py-1.5 px-4 rounded-xl text-indigo-800">
+                                        <span className="flex items-center bg-indigo-50 py-1.5 px-2 mid:px-4 rounded-xl text-indigo-800">
                                             {yearRow + yearRowExp}
                                         </span>
                                     )}
-                                </td>
-                                <td className="p-2">
+                                </div>
+                                <div className="col-span-4 py-2 mid:p-2">
                                     {monthlyExp === 0 && (
-                                        <span className="flex items-center bg-[#edf9e7] py-1.5 px-4 rounded-xl text-green-700">
+                                        <span className="flex items-center bg-[#edf9e7] py-1.5 px-2 mid:px-4 rounded-xl text-green-700">
                                             {monthRowExp}
                                         </span>
                                     )}
-                                </td>
-                                <td className="p-2" colSpan={2}>
+                                </div>
+                                <div className="col-span-4 py-2 mid:p-2">
                                     {dailyExp === 0 && (
-                                        <span className="flex items-center bg-sky-100 py-1.5 px-4 rounded-xl text-sky-700">
+                                        <span className="flex items-center bg-sky-100 py-1.5 px-2 mid:px-4 rounded-xl text-sky-700">
                                             {dayRow + dayRowExp}
                                         </span>
                                     )}
-                                </td>
-                            </tr>
+                                </div>
+                            </article>
                         );
                         dailyExp += Number(item.expense);
                         monthlyExp += Number(item.expense);
                         yearlyExp += Number(item.expense);
                         tillNowExp += Number(item.expense);
                         const row = (
-                            <tr className="border-y">
-                                <td className="p-2">
+                            <article className="grid grid-cols-2 mid:grid-cols-12 border-b">
+                                <div className="mid:col-span-2 pt-2 mid:p-2 text-xs mid:text-base flex items-end mid:block">
                                     {months[date.getMonth()] +
                                         " " +
                                         date.getDate() +
                                         ", " +
                                         date.getFullYear()}
-                                </td>
-                                <td className="p-2">{"₹" + item.expense}</td>
-                                <td className="p-2 capitalize">
+                                </div>
+                                <div className="mid:col-span-2 pt-2 mid:p-2 flex justify-end mid:block text-green-700 font-bold">
+                                    {"₹" + item.expense}
+                                </div>
+                                <div className="mid:col-span-3 mid:p-2 capitalize">
                                     {item.description}
-                                </td>
-                                <td className="p-2">
-                                    <span className="py-1 px-4 bg-gray-100 rounded-xl font-head font-medium">
+                                </div>
+                                <div className="mid:col-span-2 pt-0.5 mid:p-2 flex justify-end mid:block">
+                                    <span className="text-sm mid:text-base py-0.5 mid:py-1 px-2 mid:px-4 bg-gray-100 rounded-xl">
                                         {"# " + item.category}
                                     </span>
-                                </td>
-                                <td className="p-2">
+                                </div>
+                                <div className="col-span-2 flex justify-end mid:block mid:col-span-3 text-sm mid:text-base py-1 mid:p-2">
                                     <span
-                                        className="py-1 cursor-pointer px-4 rounded-xl font-medium bg-gray-100 text-gray-700 mr-2"
+                                        className="py-0.5 mid:py-1 cursor-pointer px-4 rounded-xl bg-gray-100 text-gray-700 mr-2"
                                         onClick={() =>
                                             props.parentCallback(
                                                 item.id,
@@ -215,7 +214,7 @@ export default function PremiumTable(props: {
                                         Edit
                                     </span>
                                     <span
-                                        className="py-1 cursor-pointer px-4 rounded-xl font-medium bg-red-100 text-red-700"
+                                        className="py-0.5 mid:py-1 cursor-pointer px-4 rounded-xl bg-red-100 text-red-700"
                                         onClick={() =>
                                             props.parentCallback(
                                                 item.id,
@@ -225,8 +224,8 @@ export default function PremiumTable(props: {
                                     >
                                         Delete
                                     </span>
-                                </td>
-                            </tr>
+                                </div>
+                            </article>
                         );
                         prevdaily = daily;
                         prevmonthly = monthly;
@@ -239,11 +238,11 @@ export default function PremiumTable(props: {
                     })}
                     {/* this day month and year */}
                     {daily.toDateString() !== today.toDateString() && (
-                        <tr className="font-medium border-y bg-gray-50">
-                            <td className="p-2" colSpan={2}>
+                        <article className="grid grid-cols-12 gap-1 mid:gap-0 border-b bg-gray-50 text-sm mid:text-base">
+                            <div className="col-span-4 py-2 mid:p-2">
                                 {yearlyExp !== 0 &&
                                     yearly !== today.getFullYear() && (
-                                        <span className="flex items-center bg-indigo-50 py-1.5 px-4 rounded-xl text-indigo-800">
+                                        <span className="flex items-center bg-indigo-50 py-1.5 px-2 mid:px-4 rounded-xl text-indigo-800">
                                             {"Year " +
                                                 yearly +
                                                 ": " +
@@ -251,8 +250,8 @@ export default function PremiumTable(props: {
                                                 yearlyExp}
                                         </span>
                                     )}
-                            </td>
-                            <td className="p-2">
+                            </div>
+                            <div className="col-span-4 py-2 mid:p-2">
                                 {monthly !== undefined &&
                                     monthlyExp !== 0 &&
                                     ((monthly !== today.getMonth() &&
@@ -262,7 +261,7 @@ export default function PremiumTable(props: {
                                         (monthly === today.getMonth() &&
                                             yearly !==
                                                 today.getFullYear())) && (
-                                        <span className="flex items-center bg-[#edf9e7] py-1.5 px-4 rounded-xl text-green-700">
+                                        <span className="flex items-center bg-[#edf9e7] py-1.5 px-2 mid:px-4 rounded-xl text-green-700">
                                             {months[monthly] +
                                                 ", " +
                                                 yearly +
@@ -270,10 +269,10 @@ export default function PremiumTable(props: {
                                                 monthlyExp}
                                         </span>
                                     )}
-                            </td>
-                            <td className="p-2" colSpan={2}>
+                            </div>
+                            <div className="col-span-4 py-2 mid:p-2">
                                 {monthly !== undefined && dailyExp != 0 && (
-                                    <span className="flex items-center bg-sky-100 py-1.5 px-4 rounded-xl text-sky-700">
+                                    <span className="flex items-center bg-sky-100 py-1.5 px-2 mid:px-4 rounded-xl text-sky-700">
                                         {months[monthly] +
                                             " " +
                                             daily.getDate() +
@@ -284,74 +283,70 @@ export default function PremiumTable(props: {
                                             dailyExp}
                                     </span>
                                 )}
-                            </td>
-                        </tr>
+                            </div>
+                        </article>
                     )}
                     {/* this day month and year */}
-                    <tr className="font-medium border-y">
-                        <td className="p-2" colSpan={2}>
-                            <span className="flex items-center bg-indigo-50 py-1.5 px-4 rounded-xl text-indigo-800">
+                    <article className="grid grid-cols-12 gap-2 mid:gap-0 border-b text-sm mid:text-base">
+                        <div className="col-span-4 py-2 mid:p-2">
+                            <span className="flex items-center bg-indigo-50 py-1.5 px-2 md:px-4 rounded-xl text-indigo-800">
                                 {"Year " +
                                     today.getFullYear() +
                                     ": " +
                                     "₹" +
                                     props.thisData[0]}
                             </span>
-                        </td>
-                        <td className="p-2">
-                            <span className="flex items-center bg-[#edf9e7] py-1.5 px-4 rounded-xl text-green-700">
+                        </div>
+                        <div className="col-span-4 py-2 mid:p-2">
+                            <span className="flex items-center bg-[#edf9e7] py-1.5 px-2 md:px-4 rounded-xl text-green-700">
                                 {months[today.getMonth()] +
                                     ", " +
                                     today.getFullYear() +
                                     ": ₹" +
                                     props.thisData[1]}
                             </span>
-                        </td>
-                        <td className="p-2" colSpan={2}>
-                            <span className="flex items-center bg-sky-100 py-1.5 px-4 rounded-xl text-sky-700">
+                        </div>
+                        <div className="col-span-4 py-2 mid:p-2">
+                            <span className="flex items-center bg-sky-100 py-1.5 px-2 md:px-4 rounded-xl text-sky-700">
                                 {months[today.getMonth()] +
                                     " " +
                                     today.getDate() +
                                     ", " +
                                     today.getFullYear() +
-                                    " (Today): ₹" +
+                                    ": ₹" +
                                     props.thisData[2]}
                             </span>
-                        </td>
-                    </tr>
-
-                    <tr className="font-medium border-t">
-                        <td colSpan={5} className="p-2">
+                        </div>
+                    </article>
+                    {/* total expense till now */}
+                    <article className="grid grid-cols-12 text-sm mid:text-base">
+                        <div className="col-span-12 py-2 mid:p-2">
                             <span className="bg-yellow-100 py-1.5 px-6 rounded-xl text-yellow-800 float-right">
                                 Total Expense: {"₹" + props.thisData[3]}
                             </span>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-            <div className="flex justify-between items-center mt-3">
+                        </div>
+                    </article>
+                </div>
+            </div>
+            {/* pagination data */}
+            <div className="flex justify-between items-center mt-3 text-sm mid:text-base">
                 <button
                     className="px-4 py-1 bg-gray-200 text-gray-700 font-medium rounded-xl"
                     disabled={props.pageNum === 0}
                     onClick={() =>
                         props.pageNum > 0 &&
-                        props.handlePaginaExp(props.pageNum - 1)
+                        props.handlePaginaExp(
+                            props.pageNum - 1,
+                            props.limitRows
+                        )
                     }
                 >
                     Prev
                 </button>
                 <span className="px-4 py-1 bg-gray-200 text-gray-700 font-medium rounded-xl">
-                    {Number(props.pageNum * props.limitRows + 1) +
+                    {Number(start) +
                         " - " +
-                        Number(
-                            props.totalRows - props.pageNum * props.limitRows <
-                                props.limitRows
-                                ? props.totalRows -
-                                      props.pageNum * props.limitRows +
-                                      props.pageNum * props.limitRows
-                                : props.pageNum * props.limitRows +
-                                      props.limitRows
-                        ) +
+                        Number(mid) +
                         " out of " +
                         props.totalRows}
                 </span>
@@ -360,7 +355,10 @@ export default function PremiumTable(props: {
                     disabled={props.pageNum === maxPage}
                     onClick={() =>
                         props.pageNum < maxPage &&
-                        props.handlePaginaExp(props.pageNum + 1)
+                        props.handlePaginaExp(
+                            props.pageNum + 1,
+                            props.limitRows
+                        )
                     }
                 >
                     Next

@@ -79,28 +79,22 @@ export default function Navbar() {
                     </h1>
                 </Link>
                 <div className="flex items-center gap-2">
-                    <button
-                        className="py-1 px-4 rounded-xl font-medium bg-black text-white"
+                    <span
+                        className="py-1 px-4 rounded-xl font-medium bg-black text-white cursor-pointer text-sm sm:text-base"
                         onClick={handlePremium}
                     >
                         Upgrade
-                    </button>
+                    </span>
                     {typeof window !== undefined && !isLogged && (
-                        <>
-                            <Link href="/login">
-                                <button className="py-1 px-4 rounded-xl font-medium bg-black text-white">
-                                    Log in
-                                </button>
-                            </Link>
-                            <Link href="/signup">
-                                <button className="py-1 px-4 rounded-xl font-medium bg-black text-white">
-                                    Sign up
-                                </button>
-                            </Link>
-                        </>
+                        <Link
+                            href="/login"
+                            className="py-1 px-4 rounded-xl font-medium bg-black text-white text-sm sm:text-base"
+                        >
+                            Log in
+                        </Link>
                     )}
                     {typeof window !== undefined && isLogged && (
-                        <Link href="/signup">
+                        <Link href="/login">
                             <button
                                 className="py-1 px-4 rounded-xl font-medium bg-black text-white"
                                 onClick={handleLogout}

@@ -27,7 +27,8 @@ export default function Dashboard() {
     const [totalLeaderRows, setTotalLeaderRows] = useState(0);
 
     const [totalExpRows, setTotalExpRows] = useState(0);
-    const expRows = localStorage.getItem("expRows");
+    let expRows = localStorage.getItem("expRows");
+    expRows = expRows === null ? "10" : expRows;
     const [limitRows, setLimitRows] = useState(Number(expRows));
     const [dataexp, setDataexp] = useState([] as any);
     const [dayDataexp, setDayDataexp] = useState([] as any);
@@ -196,7 +197,7 @@ export default function Dashboard() {
     };
     return (
         <div className="max-w-6xl mx-auto px-2 md:px-4 py-6">
-            <section className="mb-6 bg-white p-6 rounded-2xl">
+            <section className="mb-4 mid:mb-6 bg-white py-6 px-4 mid:p-6 rounded-2xl">
                 <h1 className="font-head font-semibold pb-2 text-xl">
                     Add New Expense
                 </h1>
@@ -204,10 +205,10 @@ export default function Dashboard() {
                 {visibleSuccess && <Success message={success} />}
 
                 <form
-                    className="mt-3 font-head font-medium flex gap-3"
+                    className="mt-3 font-head font-medium grid grid-cols-12 gap-2 mid:gap-3"
                     onSubmit={handleSubmit}
                 >
-                    <div className="md:w-1/6">
+                    <div className="col-span-4 mid:col-span-3 lg:col-span-2">
                         <input
                             type="number"
                             id="amount"
@@ -223,7 +224,7 @@ export default function Dashboard() {
                             required
                         />
                     </div>
-                    <div className="md:w-3/6">
+                    <div className="col-span-8 mid:col-span-4 lg:col-span-5 xl:col-span-6">
                         <input
                             type="text"
                             id="desc"
@@ -239,7 +240,7 @@ export default function Dashboard() {
                             required
                         />
                     </div>
-                    <div className="md:w-1/6">
+                    <div className="col-span-6 mid:col-span-2">
                         <select
                             id="category"
                             name="category"
@@ -263,15 +264,13 @@ export default function Dashboard() {
                     </div>
                     <button
                         type="submit"
-                        className="text-white bg-black focus:outline-none font-medium px-6 py-2.5 rounded-xl text-center md:w-1/6"
+                        className="text-white bg-black focus:outline-none font-medium px-6 py-2.5 rounded-xl text-center col-span-6 mid:col-span-3 xl:col-span-3"
                     >
                         Add Expense
                     </button>
                 </form>
             </section>
-            <section className="col-span-8">
-                <div id="premium-msg"></div>
-
+            <section>
                 {isPremium ? (
                     <PremiumTable
                         data={dataexp}
@@ -291,11 +290,12 @@ export default function Dashboard() {
                         handlePaginaExp={handlePaginaExp}
                         totalRows={totalExpRows}
                         totalExp={dayDataexp[3]}
+                        limitRows={limitRows}
                     />
                 )}
             </section>
 
-            <div className="grid grid-cols-2 gap-6 mt-6">
+            <div className="grid mid:grid-cols-2 gap-4 mid:gap-6 mt-4 mid:mt-6">
                 <section>
                     {/* show leaderboard */}
                     {isPremium && (

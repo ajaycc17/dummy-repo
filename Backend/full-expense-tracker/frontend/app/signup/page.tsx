@@ -53,9 +53,9 @@ export default function Signup() {
         }
     };
     return (
-        <div className="min-h-[calc(100vh-116px)] flex items-center">
+        <div className="min-h-[calc(100vh-116px)] flex items-center px-2 md:px-4">
             <section className="w-full md:max-w-md mx-auto my-8 bg-white p-6 rounded-2xl">
-                <h1 className="font-head font-semibold mb-1 text-center text-3xl">
+                <h1 className="font-head font-semibold mb-1 text-center text-2xl md:text-3xl">
                     Create your account
                 </h1>
                 <p className="text-center pb-3 text-lg border-b">
@@ -95,7 +95,7 @@ export default function Signup() {
                             }}
                         />
                     </div>
-                    <div className="grid md:grid-cols-2 md:gap-4 mb-4">
+                    <div className="grid md:grid-cols-2 gap-4 mb-4">
                         <div>
                             <input
                                 type="password"
@@ -138,6 +138,7 @@ export default function Signup() {
                         <Link href="/login" className="text-blue-700">
                             Log in
                         </Link>
+                        .
                     </p>
                 </form>
             </section>

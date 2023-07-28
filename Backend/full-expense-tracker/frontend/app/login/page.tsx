@@ -40,9 +40,9 @@ export default function Login() {
         }
     };
     return (
-        <div className="min-h-[calc(100vh-116px)] flex items-center">
+        <div className="min-h-[calc(100vh-116px)] flex items-center px-2 md:px-4">
             <section className="w-full md:max-w-md mx-auto bg-white p-6 rounded-2xl my-8">
-                <h1 className="font-head font-semibold mb-1 text-center text-3xl">
+                <h1 className="font-head font-semibold mb-1 text-center text-2xl md:text-3xl">
                     Log in to track
                 </h1>
                 <p className="text-center pb-3 text-lg border-b">
@@ -96,10 +96,17 @@ export default function Login() {
                     </div>
                     <button
                         type="submit"
-                        className="text-white bg-gray-700 focus:outline-none font-medium w-full px-5 py-2.5 text-center rounded-xl"
+                        className="text-white bg-gray-700 focus:outline-none font-medium w-full px-5 py-2.5 text-center rounded-xl mb-3"
                     >
                         Log in
                     </button>
+                    <p>
+                        Don't have an account?{" "}
+                        <Link href="/signup" className="text-blue-700">
+                            Sign up
+                        </Link>
+                        .
+                    </p>
                 </form>
             </section>
         </div>
