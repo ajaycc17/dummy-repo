@@ -1,7 +1,6 @@
 const Razorpay = require("razorpay");
-require("dotenv").config();
 
-const Order = require("../models/orders");
+const Order = require("../models/order");
 const sequelize = require("../utils/database");
 const jwtServices = require("../services/jwtService");
 
@@ -14,9 +13,6 @@ exports.purchasePremium = async (req, res) => {
         const amount = 2500;
 
         rzp.orders.create({ amount, currency: "INR" }, (err, order) => {
-            if (err) {
-                throw new Error(JSON.stringify(err));
-            }
             req.user
                 .createOrder({ orderid: order.id, status: "PENDING" })
                 .then(() => {

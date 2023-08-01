@@ -6,7 +6,7 @@ import { useState, useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { getCookie, setCookie, deleteCookie } from "cookies-next";
 
-const baseUrl = "http://localhost:3000";
+const baseUrl = "https://api.codeplasma.tech";
 
 export default function Navbar() {
     const router = useRouter();
@@ -50,6 +50,7 @@ export default function Navbar() {
                 setCookie("token", res.data.token);
             },
         };
+        <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         const rzpl = new Razorpay(options);
@@ -74,7 +75,7 @@ export default function Navbar() {
             <div className="max-w-6xl mx-auto py-2 px-2 md:px-4 flex items-center justify-between">
                 <Link href="/" className="flex items-center gap-3">
                     <Image src="/logo.svg" width={40} height={40} alt="Logo" />
-                    <h1 className="font-semibold font-head text-lg">
+                    <h1 className="hidden sm:block font-semibold font-head text-lg">
                         Expense Tracker
                     </h1>
                 </Link>
@@ -96,7 +97,7 @@ export default function Navbar() {
                     {typeof window !== undefined && isLogged && (
                         <Link href="/login">
                             <button
-                                className="py-1 px-4 rounded-xl font-medium bg-black text-white"
+                                className="py-1 px-4 rounded-xl font-medium bg-black text-white text-sm sm:text-base"
                                 onClick={handleLogout}
                             >
                                 Log out

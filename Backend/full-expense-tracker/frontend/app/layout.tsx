@@ -34,6 +34,7 @@ export default function RootLayout({
             <body
                 className={`${roboto.variable} font-sans ${spGrot.variable} bg-[#b5c2ca]`}
             >
+                <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
                 <Navbar />
                 <main className="min-h-[calc(100vh-116px)]">{children}</main>
                 <Footer />

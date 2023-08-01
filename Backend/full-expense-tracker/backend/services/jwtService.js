@@ -1,5 +1,4 @@
 const jwt = require("jsonwebtoken");
-require("dotenv").config();
 
 exports.generateAccessTokenOnPremium = (id, name, isPremium) => {
     return jwt.sign(

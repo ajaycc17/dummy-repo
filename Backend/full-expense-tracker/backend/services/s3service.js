@@ -1,5 +1,4 @@
 const AWS = require("aws-sdk");
-require("dotenv").config();
 
 exports.uploadToS3 = async (data, fileName) => {
     const BUCKET_NAME = process.env.BUCKET_NAME;

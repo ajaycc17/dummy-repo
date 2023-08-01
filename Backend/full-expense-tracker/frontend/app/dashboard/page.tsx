@@ -27,18 +27,20 @@ export default function Dashboard() {
     const [totalLeaderRows, setTotalLeaderRows] = useState(0);
 
     const [totalExpRows, setTotalExpRows] = useState(0);
-    let expRows = localStorage.getItem("expRows");
-    expRows = expRows === null ? "10" : expRows;
-    const [limitRows, setLimitRows] = useState(Number(expRows));
+
+    const [limitRows, setLimitRows] = useState(10);
     const [dataexp, setDataexp] = useState([] as any);
     const [dayDataexp, setDayDataexp] = useState([] as any);
     const [files, setFiles] = useState([] as any);
     const [leaderData, setLeaderData] = useState([] as any);
 
-    const baseUrl = "http://localhost:3000";
+    const baseUrl = "https://api.codeplasma.tech";
 
     useEffect(() => {
         const token = localStorage.getItem("token");
+        let expRows = localStorage.getItem("expRows");
+        expRows = expRows === null ? "10" : expRows;
+        setLimitRows(Number(expRows));
         // get expense and downloadeds data together
         let url =
             baseUrl +
@@ -63,9 +65,7 @@ export default function Dashboard() {
             })
             .catch((err) => console.log(err));
         // get leaderboard data
-        url =
-            "http://localhost:3000" +
-            `/premium/get-leaderboard?page=${leaderPageNum}`;
+        url = baseUrl + `/premium/get-leaderboard?page=${leaderPageNum}`;
         axios
             .get(url, { headers: { Authorization: token } })
             .then((res) => res.data)
@@ -75,6 +75,7 @@ export default function Dashboard() {
             })
             .catch((err) => console.log(err));
     }, [effectLogic]);
+
     const handleReportDown = async () => {
         // get report link
         const token = localStorage.getItem("token");

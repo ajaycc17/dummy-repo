@@ -6,10 +6,11 @@ const cors = require("cors");
 const bodyParser = require("body-parser");
 const helmet = require("helmet");
 const morgan = require("morgan");
+require("dotenv").config({ path: "../.env" });
 
 const Expense = require("./models/expense");
 const User = require("./models/user");
-const Order = require("./models/orders");
+const Order = require("./models/order");
 const ForgotPasswordRequests = require("./models/forgotPass");
 const FilesDown = require("./models/filesDown");
 
@@ -55,6 +56,7 @@ sequelize
     // .sync({ force: true })
     .sync()
     .then((res) => {
-        app.listen(process.env.PORT || 3000);
+        app.listen(3000);
+        // app.listen(process.env.PORT || 3000);
     })
     .catch((err) => console.log(err));

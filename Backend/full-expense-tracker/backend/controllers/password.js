@@ -1,7 +1,6 @@
 const bcrypt = require("bcrypt");
 const { v4: uuidv4 } = require("uuid");
 const Sib = require("sib-api-v3-sdk");
-require("dotenv").config();
 
 const ForgotPasswordRequests = require("../models/forgotPass");
 const sequelize = require("../utils/database");
