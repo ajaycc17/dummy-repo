@@ -1,3 +1,7 @@
 node_modules
-*env
+.env
+.env.local
 .next
+06_expense_tracker_app
+07_e-commerce_mongoDB_app
+08_group_chat_app
