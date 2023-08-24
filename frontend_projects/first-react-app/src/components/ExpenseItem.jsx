@@ -1,11 +1,11 @@
-export default function ExpenseItem() {
+export default function ExpenseItem(props) {
     return (
         <div>
-            <h2>Expense Item!</h2>
             <ul>
-                <li>Food Rs 10</li>
-                <li>Petrol Rs 100</li>
-                <li>Movies Rs. 200</li>
+                <li>
+                    {props.date.toISOString()} - {props.location} -{" "}
+                    {props.title} - ${props.amount}
+                </li>
             </ul>
         </div>
     );
