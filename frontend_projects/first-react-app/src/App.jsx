@@ -1,6 +1,7 @@
-import ExpenseItem from "./components/ExpenseItem";
+import ExpenseItem from "./components/Expenses/ExpenseItem";
+import Card from "./components/UI/Card";
 
-function App() {
+const App = () => {
     const exp = [
         {
             id: 1,
@@ -25,21 +26,19 @@ function App() {
         },
     ];
     return (
-        <div>
-            <header>
-                <h1>Expense Items:</h1>
-                {exp.map((item) => (
-                    <ExpenseItem
-                        key={item.id}
-                        title={item.title}
-                        amount={item.amount}
-                        date={item.date}
-                        location={item.location}
-                    />
-                ))}
-            </header>
-        </div>
+        <Card className="text-red-700">
+            <h1>Expense Items:</h1>
+            {exp.map((item) => (
+                <ExpenseItem
+                    key={item.id}
+                    title={item.title}
+                    amount={item.amount}
+                    date={item.date}
+                    location={item.location}
+                />
+            ))}
+        </Card>
     );
-}
+};
 
 export default App;
