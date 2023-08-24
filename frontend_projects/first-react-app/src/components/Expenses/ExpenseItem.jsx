@@ -4,8 +4,11 @@ import ExpenseDetails from "./ExpenseDetails";
 import Card from "../UI/Card";
 
 const ExpenseItem = (props) => {
+    const deleteExp = (e) => {
+        e.target.parentElement.remove();
+    };
     return (
-        <Card className="text-black">
+        <Card className="text-black flex gap-2">
             <ul>
                 <li>
                     <ExpenseDate date={props.date} /> -{" "}
@@ -16,6 +19,7 @@ const ExpenseItem = (props) => {
                     />
                 </li>
             </ul>
+            <button onClick={deleteExp}>Delete Expense</button>
         </Card>
 
         // // originally JSX gets transformed into code like this
