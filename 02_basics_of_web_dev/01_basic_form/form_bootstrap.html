@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>Bootstrap registration</title>
+        <link
+            href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+            rel="stylesheet"
+            integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM"
+            crossorigin="anonymous"
+        />
+        <style>
+            body {
+                background: url("background.jpg") no-repeat fixed center;
+                background-size: cover;
+                overflow: hidden;
+                padding: 10px 20px;
+            }
+
+            .navbar {
+                background-color: transparent !important;
+            }
+
+            .form-container {
+                max-width: 600px;
+                display: block;
+                margin: auto;
+                background-color: white;
+                border: 2px solid#ff8700;
+                padding: 20px;
+                border-radius: 15px;
+            }
+
+            .form-container h2,
+            .form-container p {
+                text-align: center;
+            }
+
+            .submit-btn {
+                width: 100%;
+            }
+        </style>
+    </head>
+
+    <body>
+        <!-- navbar -->
+        <nav class="navbar navbar-expand-lg bg-body-tertiary">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="#">Logo</a>
+                <div>
+                    <button class="btn btn-outline-dark" type="submit">
+                        Search
+                    </button>
+                    <button class="btn btn-outline-dark" type="submit">
+                        Search
+                    </button>
+                </div>
+            </div>
+        </nav>
+        <div class="form-container">
+            <h2>Book a Call</h2>
+            <p>
+                Book a call slot and our representative will call you within 1hr
+                of selected time.
+            </p>
+            <hr />
+            <form>
+                <div class="mb-3">
+                    <label for="username" class="form-label">Name:</label>
+                    <input
+                        type="text"
+                        class="form-control"
+                        id="username"
+                        name="username"
+                        aria-describedby="username"
+                    />
+                </div>
+                <div class="mb-3">
+                    <label for="email" class="form-label">Email:</label>
+                    <input
+                        type="email"
+                        class="form-control"
+                        id="email"
+                        name="email"
+                        aria-describedby="email"
+                    />
+                </div>
+                <div class="mb-3">
+                    <label for="phone" class="form-label">Phone: </label>
+                    <input
+                        type="tel"
+                        class="form-control"
+                        id="phone"
+                        name="phone"
+                        aria-describedby="phone"
+                    />
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col">
+                        <label for="date" class="form-label"
+                            >Date for call:</label
+                        >
+                        <input
+                            type="date"
+                            id="date"
+                            name="date"
+                            min="2000-01-02"
+                            class="form-control"
+                        />
+                    </div>
+                    <div class="col">
+                        <label for="appt" class="form-label"
+                            >Select a time:</label
+                        >
+                        <input
+                            type="time"
+                            id="appt"
+                            name="appt"
+                            class="form-control"
+                        />
+                    </div>
+                </div>
+                <input
+                    type="button"
+                    value="GET A CALL"
+                    class="btn btn-primary submit-btn"
+                    onclick="handleSubmit()"
+                />
+            </form>
+        </div>
+        <script
+            src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz"
+            crossorigin="anonymous"
+        ></script>
+        <script>
+            var today = new Date();
+            var dd = today.getDate();
+            var mm = today.getMonth() + 1; //January is 0!
+            var yyyy = today.getFullYear();
+            if (dd < 10) {
+                dd = "0" + dd;
+            }
+            if (mm < 10) {
+                mm = "0" + mm;
+            }
+            today = yyyy + "-" + mm + "-" + dd;
+            document.getElementById("date").setAttribute("min", today);
+
+            // console log submitted details
+            function handleSubmit() {
+                console.log("Name: " + username.value);
+                console.log("Email: " + email.value);
+                console.log("Phone: " + phone.value);
+                console.log("Date & Time: " + date.value + " " + appt.value);
+            }
+        </script>
+        <!-- script goes here -->
+    </body>
+</html>

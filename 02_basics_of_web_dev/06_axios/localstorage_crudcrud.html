@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+        <title>JS For Beginners</title>
+    </head>
+
+    <body>
+        <style>
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
+
+            body {
+                font-family: Arial, Helvetica, sans-serif;
+                line-height: 1.6;
+            }
+
+            ul {
+                list-style: none;
+            }
+
+            ul li {
+                padding: 5px;
+                background: #f4f4f4;
+                margin: 5px 0;
+            }
+
+            header {
+                background: #f4f4f4;
+                padding: 1rem;
+                text-align: center;
+            }
+
+            .container {
+                margin: auto;
+                width: 500px;
+                overflow: auto;
+                padding: 3rem 2rem;
+            }
+
+            #my-form {
+                padding: 2rem;
+                background: #f4f4f4;
+            }
+
+            #my-form label {
+                display: block;
+            }
+
+            #my-form input[type="text"],
+            #my-form input[type="tel"] {
+                width: 100%;
+                padding: 8px;
+                margin-bottom: 10px;
+                border-radius: 5px;
+                border: 1px solid #ccc;
+            }
+
+            .btn {
+                display: block;
+                width: 100%;
+                padding: 10px 15px;
+                border: 0;
+                background: #333;
+                color: #fff;
+                border-radius: 5px;
+                margin: 5px 0;
+            }
+
+            .btn:hover {
+                background: #444;
+            }
+
+            .bg-dark {
+                background: #333;
+                color: #fff;
+            }
+
+            .error {
+                background: orangered;
+                color: #fff;
+                padding: 5px;
+                margin: 5px;
+            }
+
+            .mx-2 {
+                margin: 0 5px 0 5px;
+            }
+
+            .btn2 {
+                padding: 5px 12px;
+                border: 0;
+                background: #333;
+                color: #fff;
+                border-radius: 5px;
+            }
+        </style>
+        <header>
+            <h1>JS For Beginners</h1>
+        </header>
+
+        <section class="container">
+            <form id="my-form">
+                <h1>Add User</h1>
+                <div class="msg"></div>
+                <div>
+                    <label for="username">Name:</label>
+                    <input type="text" id="username" name="username" />
+                </div>
+                <div>
+                    <label for="email">Email:</label>
+                    <input type="text" id="email" name="email" />
+                </div>
+                <div>
+                    <label for="phone">Phone:</label>
+                    <input type="tel" id="phone" name="phone" />
+                </div>
+                <input class="btn" type="submit" value="Submit" />
+            </form>
+            <ul id="details"></ul>
+        </section>
+
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.4.0/axios.min.js"></script>
+
+        <script>
+            const myForm = document.querySelector("#my-form");
+            const nameInput = document.querySelector("#username");
+            const emailInput = document.querySelector("#email");
+            const phoneInput = document.querySelector("#phone");
+            const details = document.querySelector("#details");
+            const msg = document.querySelector(".msg");
+            // on submit
+            myForm.addEventListener("submit", onSubmit);
+            window.addEventListener("load", showItems);
+            // to decide put or post
+            var userId = "";
+
+            // fetch and display item
+            function showItems() {
+                let data = [];
+                axios
+                    .get(
+                        "https://crudcrud.com/api/4592717977114f40a8e8848bce6d03b1/appointmentBooking"
+                    )
+                    .then((res) => {
+                        data = res.data;
+                        for (var i = 0; i < data.length; i++) {
+                            // create list
+                            var li = document.createElement("li");
+                            li.appendChild(
+                                document.createTextNode(data[i].email)
+                            );
+                            li.appendChild(document.createTextNode(": "));
+                            li.appendChild(
+                                document.createTextNode(data[i].phone)
+                            );
+                            // hidden key
+                            var keyElem = document.createElement("span");
+                            keyElem.style.display = "none";
+                            keyElem.appendChild(
+                                document.createTextNode(data[i]._id)
+                            );
+                            li.appendChild(keyElem);
+
+                            // add a delete button
+                            var deleteBtn = document.createElement("button");
+                            deleteBtn.className = "btn2 mx-2 delete";
+                            // Append text node
+                            deleteBtn.appendChild(
+                                document.createTextNode("Delete")
+                            );
+
+                            // add a edit btn
+                            var editBtn = document.createElement("button");
+                            editBtn.className = "btn2 edit";
+                            // Append text node
+                            editBtn.appendChild(
+                                document.createTextNode("Edit")
+                            );
+
+                            // add btns to li
+                            li.appendChild(deleteBtn);
+                            li.appendChild(editBtn);
+
+                            // append li
+                            details.appendChild(li);
+                        }
+                    })
+                    .catch((err) => console.log(err));
+            }
+            function onSubmit(e) {
+                e.preventDefault();
+                if (
+                    nameInput.value === "" ||
+                    emailInput.value === "" ||
+                    phoneInput.value === ""
+                ) {
+                    msg.classList.add("error");
+                    msg.innerHTML = "Please enter all fields";
+                    setTimeout(() => msg.remove(), 3000);
+                } else {
+                    let myObj = {
+                        name: "",
+                        email: "",
+                        phone: "",
+                    };
+                    myObj.name = nameInput.value;
+                    myObj.email = emailInput.value;
+                    myObj.phone = phoneInput.value;
+
+                    let myObjSerialized = JSON.stringify(myObj);
+                    // localStorage.setItem(emailInput.value, myObjSerialized);
+                    // save to server
+                    if (userId === "") {
+                        axios
+                            .post(
+                                "https://crudcrud.com/api/4592717977114f40a8e8848bce6d03b1/appointmentBooking",
+                                myObj
+                            )
+                            .then((res) => {
+                                console.log(res);
+                            })
+                            .catch((err) => console.log(err));
+                    } else {
+                        let url1 =
+                            "https://crudcrud.com/api/4592717977114f40a8e8848bce6d03b1/appointmentBooking/" +
+                            userId;
+                        axios
+                            .put(url1, myObj)
+                            .then((res) => {
+                                console.log(res);
+                            })
+                            .catch((err) => console.log(err));
+                        userId = "";
+                    }
+
+                    // create list
+                    var li = document.createElement("li");
+                    li.appendChild(document.createTextNode(emailInput.value));
+                    li.appendChild(document.createTextNode(": "));
+                    li.appendChild(document.createTextNode(phoneInput.value));
+
+                    // add a delete button
+                    var deleteBtn = document.createElement("button");
+                    deleteBtn.className = "btn2 mx-2 delete";
+                    // Append text node
+                    deleteBtn.appendChild(document.createTextNode("Delete"));
+
+                    // add a edit btn
+                    var editBtn = document.createElement("button");
+                    editBtn.className = "btn2 edit";
+
+                    // Append text node
+                    editBtn.appendChild(document.createTextNode("Edit"));
+
+                    // add btns to li
+                    li.appendChild(deleteBtn);
+                    li.appendChild(editBtn);
+
+                    // append li
+                    details.appendChild(li);
+                }
+            }
+            details.addEventListener("click", removeItem);
+            // Remove item
+            function removeItem(e) {
+                if (e.target.classList.contains("delete")) {
+                    var li = e.target.parentElement;
+                    var key = li.childNodes[3].childNodes[0].textContent;
+                    var url =
+                        "https://crudcrud.com/api/4592717977114f40a8e8848bce6d03b1/appointmentBooking/" +
+                        key;
+
+                    axios
+                        .delete(url)
+                        .then(details.removeChild(li))
+                        .catch((err) => console.log(err));
+                } else if (e.target.classList.contains("edit")) {
+                    var li = e.target.parentElement;
+                    var key = li.childNodes[3].childNodes[0].textContent;
+                    userId = key;
+                    var url =
+                        "https://crudcrud.com/api/4592717977114f40a8e8848bce6d03b1/appointmentBooking/" +
+                        key;
+                    // get item from localstorage
+                    axios
+                        .get(url)
+                        .then((res) => {
+                            // copy to form
+                            var name = res.data.name;
+                            var email = res.data.email;
+                            var phone = res.data.phone;
+                            nameInput.value = name;
+                            emailInput.value = email;
+                            phoneInput.value = phone;
+                        })
+                        .catch((err) => console.log(err));
+
+                    // delete
+                    details.removeChild(li);
+                }
+            }
+        </script>
+    </body>
+</html>

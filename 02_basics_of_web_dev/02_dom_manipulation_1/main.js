@@ -32,21 +32,21 @@ var li = document.getElementsByTagName("li");
 // li[4].style.fontWeight = "bold";
 // li[4].style.color = "red";
 // li[4].style.backgroundColor = "purple";
-li[4].classList.add("list-group-item");
+li[9].classList.add("list-group-item");
 
 // queryselector
-// Make the 2nd item have green background color
+// Make the 2nd item have yellow background color
 var secondItem = document.querySelector(".list-group-item:nth-child(2)");
-secondItem.style.backgroundColor = "green";
+secondItem.style.backgroundColor = "yellow";
 
 // Make the 3rd item invisible
 var thirdItem = document.querySelector(".list-group-item:nth-child(3)");
 thirdItem.style.display = "none";
 
 // queryselectorall
-// Using QuerySelectorALL change the font color to green for 2nd item in the item list
+// Using QuerySelectorALL change the font color to red for 2nd item in the item list
 var second = document.querySelectorAll("li");
-second[1].style.color = "green";
+second[1].style.color = "red";
 
 // Choose all the odd elements and make their background green using QuerySelectorALL
 var oddElements = document.querySelectorAll("li:nth-child(odd)");
